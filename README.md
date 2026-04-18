@@ -39,4 +39,4 @@ Open `site/index.html` locally or use the GitHub Pages URL above.
 
 ## Contributing
 
-Follow [docs/CODING_STANDARDS.md](docs/CODING_STANDARDS.md). After editing fragments under `src/parts/`, run the merge script and commit `site/index.html` (CI regenerates on deploy as well).
+See [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) and [docs/CODING_STANDARDS.md](docs/CODING_STANDARDS.md). After editing fragments under `src/parts/`, run the merge script and commit `site/index.html` (CI regenerates on deploy as well). Push updates to `origin main` when changes are ready.
