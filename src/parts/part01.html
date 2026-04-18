@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta property="og:title" content="6Phene — Infrastructure Master Reference">
+<meta property="og:description" content="Complete home lab reference: hardware, Proxmox VMs, TrueNAS, 100G network, security, grow automation, Toronto CAD pricing.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://kissmeh02.github.io/home-pc-server-setup/">
+<meta name="twitter:card" content="summary_large_image">
+<title>6Phene — Infrastructure Master Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080909;--bg2:#0f1011;--bg3:#161819;--bg4:#1e2022;--bg5:#252829;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.12);--border3:rgba(255,255,255,0.2);
+  --text:#ddd9d0;--text2:#888580;--text3:#484542;
+  --c1:#00e5a0;--c1d:rgba(0,229,160,0.1);
+  --c2:#a78bfa;--c2d:rgba(167,139,250,0.1);
+  --c3:#ff6b47;--c3d:rgba(255,107,71,0.1);
+  --c4:#38bdf8;--c4d:rgba(56,189,248,0.1);
+  --c5:#facc15;--c5d:rgba(250,204,21,0.1);
+  --c6:#4ade80;--c6d:rgba(74,222,128,0.1);
+  --c7:#f472b6;--c7d:rgba(244,114,182,0.1);
+  --mono:'JetBrains Mono',monospace;
+  --display:'Syne',sans-serif;
+  --r:4px;--rl:8px;--rxl:12px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--display);background:var(--bg);color:var(--text);font-size:13px;line-height:1.6;min-height:100vh;overflow-x:hidden;}
+ 
+/* SIDEBAR */
+.shell{display:flex;min-height:100vh;}
+.sidebar{width:230px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;}
+.logo-block{padding:20px 18px 16px;border-bottom:1px solid var(--border);}
+.logo-name{font-family:var(--display);font-size:16px;font-weight:800;letter-spacing:-.04em;color:var(--text);}
+.logo-accent{color:var(--c1);}
+.logo-sub{font-family:var(--mono);font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.12em;margin-top:3px;}
+.nav-section{padding:12px 0 4px;}
+.nav-lbl{font-family:var(--mono);font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.12em;padding:4px 18px 6px;}
+.nav-item{display:flex;align-items:center;gap:9px;padding:7px 18px;cursor:pointer;color:var(--text2);font-size:11px;font-weight:500;transition:all .15s;border-left:2px solid transparent;letter-spacing:.01em;}
+.nav-item:hover{color:var(--text);background:var(--bg3);}
+.nav-item.active{background:var(--bg3);color:var(--text);border-left-color:currentColor;}
+.nav-item.n1.active{color:var(--c1);}
+.nav-item.n2.active{color:var(--c2);}
+.nav-item.n3.active{color:var(--c3);}
+.nav-item.n4.active{color:var(--c4);}
+.nav-item.n5.active{color:var(--c5);}
+.nav-item.n6.active{color:var(--c6);}
+.nav-item.n7.active{color:var(--c7);}
+.nav-item.n8.active{color:var(--c1);}
+.nav-dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0;}
+.nav-version{margin-top:auto;padding:14px 18px;border-top:1px solid var(--border);font-family:var(--mono);font-size:9px;color:var(--text3);}
+ 
+/* MAIN */
+.main{flex:1;overflow-x:hidden;}
+.pg{display:none;padding:32px 36px;max-width:1000px;}
+.pg.active{display:block;}
+.page-hero{margin-bottom:28px;}
+.page-num{font-family:var(--mono);font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.14em;margin-bottom:8px;}
+.page-title{font-family:var(--display);font-size:28px;font-weight:800;letter-spacing:-.04em;line-height:1.1;margin-bottom:6px;}
+.page-sub{font-size:12px;color:var(--text2);font-family:var(--mono);}
+ 
+/* SECTIONS */
+.sec{margin-bottom:28px;}
+.sh{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.sh-text{font-family:var(--mono);font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.12em;}
+.sh::after{content:'';flex:1;height:1px;background:var(--border);}
+ 
+/* TABLES */
+.tw{border:1px solid var(--border);border-radius:var(--rxl);overflow:hidden;margin-bottom:12px;}
+table{width:100%;border-collapse:collapse;font-size:11px;}
+thead th{background:var(--bg3);font-family:var(--mono);font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;padding:9px 12px;text-align:left;border-bottom:1px solid var(--border);}
+thead th.r{text-align:right;}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:var(--bg3);}
+tbody tr.own-r{background:rgba(74,222,128,.04);}
+tbody tr.own-r:hover{background:rgba(74,222,128,.08);}
+tbody tr.upg-r{background:rgba(250,204,21,.03);}
+tbody td{padding:9px 12px;vertical-align:top;}
+.pn{font-weight:700;color:var(--text);display:block;margin-bottom:2px;font-family:var(--display);font-size:12px;}
+.pno{font-size:10px;color:var(--text3);font-family:var(--mono);}
+.pr{text-align:right;font-family:var(--mono);font-weight:700;white-space:nowrap;color:var(--text);font-size:11px;}
+.pr.o{color:var(--c6);}
+.pr.u{color:var(--c5);}
+.tr-sep td{background:var(--bg4);font-family:var(--mono);font-size:10px;font-weight:700;color:var(--text3);padding:6px 12px;border-top:1px solid var(--border);}
+.tr-tot td{font-family:var(--mono);font-weight:700;font-size:13px;padding:11px 12px;border-top:1px solid var(--border2);background:var(--bg4);}
+ 
+/* PILLS */
+.pill{font-size:9px;font-weight:700;padding:2px 7px;border-radius:var(--r);white-space:nowrap;display:inline-block;font-family:var(--mono);letter-spacing:.04em;}
+.p-cpu{background:var(--c2d);color:var(--c2);}
+.p-gpu{background:var(--c3d);color:var(--c3);}
+.p-ram{background:var(--c1d);color:var(--c1);}
+.p-mb{background:var(--c5d);color:var(--c5);}
+.p-stor{background:var(--c6d);color:var(--c6);}
+.p-cool{background:var(--c4d);color:var(--c4);}
+.p-psu{background:var(--c3d);color:var(--c3);}
+.p-cas{background:rgba(136,133,128,.12);color:var(--text2);}
+.p-net{background:var(--c4d);color:var(--c4);}
+.p-per{background:var(--c2d);color:var(--c2);}
+.p-ups{background:var(--c1d);color:var(--c1);}
+.p-acc{background:var(--c5d);color:var(--c5);}
+.p-os{background:var(--c4d);color:var(--c4);}
+.p-sw{background:var(--c6d);color:var(--c6);}
+.p-new{background:var(--c7d);color:var(--c7);}
+.p-srv{background:var(--c4d);color:var(--c4);}
+.tag{font-size:9px;font-weight:700;padding:1px 5px;border-radius:var(--r);margin-left:5px;font-family:var(--mono);display:inline-block;}
+.t-own{background:var(--c6d);color:var(--c6);}
+.t-buy{background:var(--c4d);color:var(--c4);}
+.t-tmp{background:var(--c5d);color:var(--c5);}
+.t-new{background:var(--c7d);color:var(--c7);}
+.t-upg{background:var(--c5d);color:var(--c5);}
+ 
+/* METRICS */
+.mr{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem;}
+.met{flex:1;min-width:100px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rl);padding:11px 13px;}
+.ml{font-family:var(--mono);font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;}
+.mv{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--text);line-height:1;}
+.ms{font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:3px;}
+ 
+/* VM GRID */
+.vg{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:8px;margin-bottom:1rem;}
+.vc{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rl);padding:12px;}
+.vc.hl1{border-color:rgba(0,229,160,.3);}
+.vc.hl2{border-color:rgba(167,139,250,.3);}
+.vc.hl3{border-color:rgba(255,107,71,.3);}
+.vc.hl4{border-color:rgba(56,189,248,.3);}
+.vc.hl5{border-color:rgba(74,222,128,.3);}
+.vc.hl6{border-color:rgba(250,204,21,.3);}
+.vb{font-size:9px;font-weight:700;padding:2px 6px;border-radius:var(--r);display:inline-block;margin-bottom:6px;font-family:var(--mono);}
+.vt{font-size:12px;font-weight:700;color:var(--text);margin-bottom:4px;font-family:var(--display);}
+.vd{font-size:10px;color:var(--text3);line-height:1.7;font-family:var(--mono);}
+.bar{height:3px;border-radius:2px;margin-top:8px;background:var(--bg5);}
+.bf{height:3px;border-radius:2px;}
+ 
+/* SERVICE / USE GRIDS */
+.sg{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:8px;margin-bottom:1rem;}
+.sc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:12px;}
+.st{font-size:12px;font-weight:700;color:var(--text);margin:5px 0 4px;font-family:var(--display);}
+.sd{font-size:10px;color:var(--text3);line-height:1.6;font-family:var(--mono);}
+ 
+/* NOTES */
+.note{font-family:var(--mono);font-size:11px;color:var(--text2);background:var(--bg3);border-left:2px solid var(--c4);padding:9px 13px;border-radius:0 var(--r) var(--r) 0;margin-bottom:7px;line-height:1.5;}
+.note.g{border-left-color:var(--c6);}
+.note.a{border-left-color:var(--c5);}
+.note.r{border-left-color:var(--c3);}
+.note.p{border-left-color:var(--c2);}
+.note.m{border-left-color:var(--c1);}
+ 
+/* SETUP STEPS */
+.steps{margin-bottom:1rem;}
+.step{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rl);padding:14px;margin-bottom:8px;display:flex;gap:14px;align-items:flex-start;}
+.step-num{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--bg);background:var(--text3);border-radius:var(--r);padding:2px 7px;flex-shrink:0;margin-top:1px;}
+.step-num.c1{background:var(--c1);color:var(--bg);}
+.step-num.c2{background:var(--c2);color:var(--bg);}
+.step-num.c3{background:var(--c3);color:var(--bg);}
+.step-num.c4{background:var(--c4);color:var(--bg);}
+.step-num.c5{background:var(--c5);color:var(--bg);}
+.step-num.c6{background:var(--c6);color:var(--bg);}
+.step-body{}
+.step-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;font-family:var(--display);}
+.step-detail{font-size:11px;color:var(--text2);font-family:var(--mono);line-height:1.6;}
+.code{background:var(--bg5);border:1px solid var(--border);border-radius:var(--r);padding:8px 12px;font-family:var(--mono);font-size:10px;color:var(--c1);margin-top:6px;overflow-x:auto;white-space:pre;}
+ 
+/* GRAND TOTALS */
+.grand{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--rl);padding:14px 16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-top:8px;}
+.grand.accent{background:var(--c1d);border-color:rgba(0,229,160,.25);}
+.gl{font-size:12px;color:var(--text2);font-family:var(--mono);}
+.gsub{font-size:10px;color:var(--text3);margin-top:2px;font-family:var(--mono);}
+.gv{font-size:24px;font-weight:700;color:var(--text);font-family:var(--mono);}
+.grand.accent .gv{color:var(--c1);}
+.sav{background:var(--c6d);border:1px solid rgba(74,222,128,.2);border-radius:var(--rl);padding:13px 16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-top:8px;}
+.sav-l{font-size:11px;color:var(--c6);font-family:var(--mono);}
+.sav-v{font-size:22px;font-weight:700;color:var(--c6);font-family:var(--mono);}
+ 
+/* DIAGRAM */
+.diagram-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rxl);padding:20px;margin-bottom:12px;overflow-x:auto;}
+ 
+/* MAINTENANCE */
+.maint-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-bottom:1rem;}
+.mc{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rl);padding:13px;}
+.mc-freq{font-family:var(--mono);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;}
+.mc-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px;font-family:var(--display);}
+.mc-item{font-size:10px;color:var(--text3);font-family:var(--mono);padding:3px 0;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:6px;}
+.mc-item:last-child{border-bottom:none;}
+.mc-item::before{content:'→';color:var(--text3);flex-shrink:0;}
+ 
+/* SUMMARY CARDS */
+.sumg{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:8px;margin-bottom:1rem;}
+.sumc{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rl);padding:12px 14px;}
+.suml{font-family:var(--mono);font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;}
+.sumv{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--text);}
+.sums{font-family:var(--mono);font-size:9px;color:var(--text3);margin-top:3px;}
+ 
+/* PHASE BANNER */
+.pb{background:var(--c5d);border:1px solid rgba(250,204,21,.2);border-radius:var(--rl);padding:12px 14px;margin-bottom:16px;font-family:var(--mono);font-size:11px;color:var(--c5);line-height:1.5;}
+ 
+/* LEGEND */
+.legend{display:flex;gap:14px;margin-bottom:12px;font-size:10px;color:var(--text3);flex-wrap:wrap;font-family:var(--mono);}
+.leg{display:flex;align-items:center;gap:6px;}
+.ld{width:7px;height:7px;border-radius:50%;}
+ 
+/* CMP */
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem;}
+@media(max-width:600px){.cmp{grid-template-columns:1fr;}}
+.cc{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rl);padding:13px;}
+.cc.rec{border-color:rgba(0,229,160,.4);}
+.ch{font-size:12px;font-weight:700;color:var(--text);margin-bottom:9px;padding-bottom:7px;border-bottom:1px solid var(--border);font-family:var(--display);}
+.cr{display:flex;justify-content:space-between;font-size:10px;padding:3px 0;color:var(--text3);gap:6px;border-bottom:1px solid var(--border);font-family:var(--mono);}
+.cr:last-child{border-bottom:none;}
+.cv{font-weight:700;color:var(--text);text-align:right;}
+.cv.g{color:var(--c6);}
+.rec-b{font-family:var(--mono);font-size:9px;background:var(--c1d);color:var(--c1);padding:2px 8px;border-radius:var(--r);display:inline-block;margin-bottom:7px;}
+ 
+/* NETWORK DIAGRAM SVG */
+.net-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rxl);padding:16px;overflow-x:auto;margin-bottom:12px;}
+ 
+/* RESPONSIVE */
+@media(max-width:700px){
+  .shell{flex-direction:column;}
+  .sidebar{width:100%;height:auto;position:static;flex-direction:row;overflow-x:auto;padding:10px 0;border-right:none;border-bottom:1px solid var(--border);}
+  .logo-block{display:none;}
+  .nav-section{display:flex;flex-direction:row;padding:0;}
+  .nav-lbl{display:none;}
+  .nav-item{white-space:nowrap;border-left:none;border-bottom:2px solid transparent;padding:8px 12px;}
+  .nav-item.active{border-left:none;border-bottom-color:currentColor;}
+  .nav-version{display:none;}
+  .pg{padding:20px 14px;}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+ 
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="logo-block">
+    <div class="logo-name"><span class="logo-accent">6</span>Phene Inc.</div>
+    <div class="logo-sub">Infrastructure v2.0</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-lbl">Hardware</div>
+    <div class="nav-item n1 active" onclick="show('pc1',this,'n1')"><div class="nav-dot"></div>PC 1 — Homelab</div>
+    <div class="nav-item n2" onclick="show('pc2',this,'n2')"><div class="nav-dot"></div>PC 2 — Dev Server</div>
+    <div class="nav-item n3" onclick="show('pc3',this,'n3')"><div class="nav-dot"></div>PC 3 — Desktop</div>
+    <div class="nav-item n4" onclick="show('srv',this,'n4')"><div class="nav-dot"></div>Home NAS Server</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-lbl">Infrastructure</div>
+    <div class="nav-item n5" onclick="show('net',this,'n5')"><div class="nav-dot"></div>100G Network</div>
+    <div class="nav-item n6" onclick="show('sec',this,'n6')"><div class="nav-dot"></div>Security System</div>
+    <div class="nav-item n7" onclick="show('grow',this,'n7')"><div class="nav-dot"></div>Grow Automation</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-lbl">Operations</div>
+    <div class="nav-item n8" onclick="show('setup',this,'n8')"><div class="nav-dot"></div>Setup Guides</div>
+    <div class="nav-item n1" onclick="show('maint',this,'n1')"><div class="nav-dot"></div>Maintenance</div>
+    <div class="nav-item n5" onclick="show('summary',this,'n5')"><div class="nav-dot"></div>Full Summary</div>
+  </div>
+  <div class="nav-version">Toronto · CAD pricing · Apr 2026</div>
+</nav>
+ 
+<main class="main">
+ 
+<!-- ═══════════════ PC 1 ═══════════════ -->
+<div class="pg active" id="p-pc1">
+<div class="page-hero">
+  <div class="page-num">01 / HARDWARE</div>
+  <div class="page-title" style="color:var(--c1);">PC 1<br>Homelab Server</div>
+  <div class="page-sub">home · Proxmox VE 8 · 7 VMs · dual RTX 4070 · 100G NIC</div>
+</div>
+ 
+<div class="sec">
+<div class="sh"><span class="sh-text">hardware build</span></div>
+<div class="legend">
+  <div class="leg"><div class="ld" style="background:var(--c6)"></div>owned — $0</div>
+  <div class="leg"><div class="ld" style="background:var(--c4)"></div>buy</div>
+  <div class="leg"><div class="ld" style="background:var(--c5)"></div>upgrade from original spec</div>
+</div>
+<div class="tw"><table>
+<thead><tr><th>Type</th><th>Part</th><th>Store</th><th class="r">CAD</th></tr></thead>
+<tbody>
+<tr class="upg-r"><td><span class="pill p-cpu">CPU</span></td><td><span class="pn">AMD Ryzen 9 5950X <span class="tag t-upg">best AM4</span></span><span class="pno">16c/32t · 105W · AM4 · best available for Proxmox on AM4 · handles all 7 VMs without contention</span></td><td><span class="pno">Canada Computers</span></td><td class="pr u">$380</td></tr>
+<tr class="upg-r"><td><span class="pill p-mb">Motherboard</span></td><td><span class="pn">ASUS ROG Crosshair VIII Dark Hero X570 <span class="tag t-upg">upgrade</span></span><span class="pno">AM4 · 2× PCIe 4.0 x16 (separate IOMMU groups) · 4× DDR4 · 4× M.2 · Wi-Fi 6 · best X570 for Proxmox IOMMU</span></td><td><span class="pno">Memory Express</span></td><td class="pr u">$450</td></tr>
+<tr><td><span class="pill p-ram">RAM</span></td><td><span class="pn">G.Skill Trident Z Neo 128 GB DDR4-3800 (4× 32 GB)</span><span class="pno">Max DDR4 for AM4 · 3800MHz CL16 · Ryzen optimised · 7 VMs need headroom</span></td><td><span class="pno">Canada Computers</span></td><td class="pr">$340</td></tr>
+<tr><td><span class="pill p-stor">NVMe boot</span></td><td><span class="pn">Samsung 990 Pro 512 GB PCIe 4.0</span><span class="pno">Proxmox OS + VM configs + ISO storage · PCIe 4.0 on X570</span></td><td><span class="pno">Memory Express</span></td><td class="pr">$90</td></tr>
+<tr><td><span class="pill p-stor">NVMe VMs</span></td><td><span class="pn">Samsung 990 Pro 4 TB PCIe 4.0</span><span class="pno">All 7 VM virtual disks · best available NVMe · fast VM I/O · 7000 MB/s sequential</span></td><td><span class="pno">Memory Express</span></td><td class="pr">$440</td></tr>
+<tr><td><span class="pill p-stor">HDD media ×2</span></td><td><span class="pn">Seagate IronWolf Pro 20 TB NAS ×2</span><span class="pno">ZFS mirror · 20 TB usable · Plex library + personal backups · Pro = 7200 RPM + 3yr warranty</span></td><td><span class="pno">Canada Computers</span></td><td class="pr">$960</td></tr>
+<tr><td><span class="pill p-stor">HDD security</span></td><td><span class="pn">Seagate IronWolf Pro 12 TB</span><span class="pno">Dedicated Frigate NVR footage · 12 TB = 90+ days 8-cam 4K retention · isolated from media pool</span></td><td><span class="pno">Canada Computers</span></td><td class="pr">$360</td></tr>
+<tr class="own-r"><td><span class="pill p-gpu">GPU 1</span></td><td><span class="pn">RTX 4070 #1 <span class="tag t-own">owned</span></span><span class="pno">PCIe x16 slot 1 → VM 1 Plex · NVENC AV1 · 8+ simultaneous 4K streams · IOMMU group A</span></td><td>—</td><td class="pr o">$0</td></tr>
+<tr class="own-r"><td><span class="pill p-gpu">GPU 2</span></td><td><span class="pn">RTX 4070 #2 <span class="tag t-own">owned</span></span><span class="pno">PCIe x16 slot 2 → VM 6 Frigate NVR · GPU stream decode + NVDEC · IOMMU group B</span></td><td>—</td><td class="pr o">$0</td></tr>
+<tr><td><span class="pill p-acc">AI TPU</span></td><td><span class="pn">Google Coral USB TPU</span><span class="pno">USB 3.0 passthru to VM 6 · Frigate AI object detection 100+ FPS · zero CPU/GPU impact</span></td><td><span class="pno">Canada Computers</span></td><td class="pr">$80</td></tr>
+<tr><td><span class="pill p-net">100G NIC</span></td><td><span class="pn">Mellanox ConnectX-4 Lx 10/25G SFP28 (used)</span><span class="pno">PCIe 3.0 x8 · 25G to core switch now · upgrade to 100G ConnectX-5 later · best value 25G NIC</span></td><td><span class="pno">eBay CA</span></td><td class="pr">$80</td></tr>
+<tr><td><span class="pill p-cool">Cooler</span></td><td><span class="pn">Noctua NH-D15S</span><span class="pno">Clearance-optimised variant · 5950X TDP 105W · silent 24/7 · single-tower clears RAM</span></td><td><span class="pno">Memory Express</span></td><td class="pr">$120</td></tr>
+<tr><td><span class="pill p-psu">PSU</span></td><td><span class="pn">Seasonic Prime TX-1000W 80+ Titanium</span><span class="pno">2× RTX 4070 (~400W) + 5950X (105W) + 3 HDDs + NIC · 1000W Titanium = best efficiency + reliability</span></td><td><span class="pno">Memory Express</span></td><td class="pr">$290</td></tr>
+<tr><td><span class="pill p-cas">Case</span></td><td><span class="pn">Fractal Design Define 7 XL</span><span class="pno">Full tower · 2 full-size GPUs · 8 HDD bays · NH-D15S clearance · best sound dampening available</span></td><td><span class="pno">Memory Express</span></td><td class="pr">$250</td></tr>
+<tr><td><span class="pill p-per">USB</span></td><td><span class="pn">SanDisk Ultra 32 GB USB-A</span><span class="pno">Proxmox install media</span></td><td><span class="pno">Any</span></td><td class="pr">$12</td></tr>
+<tr class="tr-sep"><td colspan="3">Owned — 2× RTX 4070</td><td class="pr o">$0</td></tr>
+<tr class="tr-tot"><td colspan="3">PC 1 total</td><td class="pr">~$3,852</td></tr>
+</tbody></table></div>
+</div>
+ 
+<div class="sec">
+<div class="sh"><span class="sh-text">vm resource allocation</span></div>
+<div class="mr">
+  <div class="met"><div class="ml">VMs</div><div class="mv">7</div><div class="ms">all workloads</div></div>
+  <div class="met"><div class="ml">vCPUs alloc.</div><div class="mv">20</div><div class="ms">of 32t · 12 host</div></div>
+  <div class="met"><div class="ml">RAM alloc.</div><div class="mv">86 GB</div><div class="ms">of 128 GB · 42 free</div></div>
+  <div class="met"><div class="ml">NVMe VMs</div><div class="mv">~2.2 TB</div><div class="ms">of 4 TB SSD</div></div>
+  <div class="met"><div class="ml">Media HDD</div><div class="mv">20 TB</div><div class="ms">ZFS mirror 2×20TB</div></div>
+  <div class="met"><div class="ml">Security HDD</div><div class="mv">12 TB</div><div class="ms">NVR footage only</div></div>
+</div>
+</div>
+ 
+<div class="sec">
+<div class="sh"><span class="sh-text">vm layout</span></div>
+<div class="vg">
+  <div class="vc hl1"><span class="vb" style="background:var(--c1d);color:var(--c1);">VM 1</span><div class="vt">Plex + QBit</div><div class="vd">4 vCPU · 16 GB RAM<br>300 GB NVMe<br>20TB HDD passthru<br>RTX 4070 #1 PCI</div><div class="bar"><div class="bf" style="width:70%;background:var(--c1);"></div></div></div>
+  <div class="vc"><span class="vb" style="background:var(--c1d);color:var(--c1);">VM 2</span><div class="vt">Home Assistant</div><div class="vd">2 vCPU · 8 GB RAM<br>128 GB NVMe<br>USB passthru main<br>Zigbee + Z-Wave</div><div class="bar"><div class="bf" style="width:25%;background:var(--c1);"></div></div></div>
+  <div class="vc"><span class="vb" style="background:var(--c1d);color:var(--c1);">VM 3</span><div class="vt">COS Backup</div><div class="vd">2 vCPU · 8 GB RAM<br>64 GB NVMe<br>rclone + restic<br>→ NAS + B2</div><div class="bar"><div class="bf" style="width:20%;background:var(--c1);"></div></div></div>
+  <div class="vc"><span class="vb" style="background:var(--c1d);color:var(--c1);">VM 4</span><div class="vt">Pi-hole DNS</div><div class="vd">2 vCPU · 2 GB RAM<br>32 GB NVMe<br>LAN-wide DNS<br>DHCP override</div><div class="bar"><div class="bf" style="width:8%;background:var(--c1);"></div></div></div>
+  <div class="vc hl5"><span class="vb" style="background:var(--c6d);color:var(--c6);">VM 5 · NEW</span><div class="vt">Grow Automation</div><div class="vd">2 vCPU · 8 GB RAM<br>128 GB NVMe<br>USB passthru grow<br>Isolated HA inst.</div><div class="bar"><div class="bf" style="width:25%;background:var(--c6);"></div></div></div>
+  <div class="vc hl3"><span class="vb" style="background:var(--c3d);color:var(--c3);">VM 6 · NEW</span><div class="vt">Frigate NVR</div><div class="vd">4 vCPU · 32 GB RAM<br>500 GB NVMe<br>12TB HDD passthru<br>RTX 4070 #2 + TPU</div><div class="bar"><div class="bf" style="width:75%;background:var(--c3);"></div></div></div>
+  <div class="vc hl6"><span class="vb" style="background:var(--c5d);color:var(--c5);">VM 7 · NEW</span><div class="vt">Alarm Panel</div><div class="vd">2 vCPU · 6 GB RAM<br>64 GB NVMe<br>Konnected + Alarmo<br>Push notifications</div><div class="bar"><div class="bf" style="width:20%;background:var(--c5);"></div></div></div>
+</div>
+</div>
+ 
+<div class="sec">
+<div class="sh"><span class="sh-text">architecture notes</span></div>
+<div class="note m">Ryzen 9 5950X is the highest-end AM4 CPU available — 32 threads gives each of the 7 VMs a dedicated allocation with 12 threads left for the Proxmox host, ZFS ARC, and overhead. The step up from 5900X (24t) is meaningful at this VM density.</div>
+<div class="note">X570 Dark Hero chosen specifically for Proxmox IOMMU: each PCIe x16 slot is in its own IOMMU group on this board. Verified by the Proxmox community. Critical for dual GPU passthrough.</div>
+<div class="note g">The Mellanox ConnectX-4 Lx gives you 25G connectivity now, upgradeable to 100G later by swapping to ConnectX-6 Dx when you add a 100G switch. Same SFP28 DAC cable works at both speeds.</div>
+<div class="note a">ZFS on the 2× 20 TB IronWolf Pro: set ARC size to 16 GB in Proxmox to keep ZFS metadata hot. The 990 Pro 4 TB NVMe can also serve as an L2ARC cache for the HDD pool if VM I/O patterns warrant it.</div>
+<div class="note r">VFIO GPU passthrough: both 4070s are identical. Bind each by PCI bus address in /etc/modprobe.d/vfio.conf — not by vendor:device ID alone. Use `lspci -nn` to get addresses before writing the config.</div>
+</div>
+</div>
+ 
+<!-- ═══════════════ PC 2 ═══════════════ -->
+<div class="pg" id="p-pc2">
+<div class="page-hero">
+  <div class="page-num">02 / HARDWARE</div>
+  <div class="page-title" style="color:var(--c2);">PC 2<br>Dev Server</div>
+  <div class="page-sub">home · Proxmox VE 8 · ITX Z790 · i9-14900K · no GPU · 3 VMs + 5 LXCs</div>
+</div>
+ 
+<div class="sec">
+<div class="sh"><span class="sh-text">hardware build</span></div>
+<div class="legend">
+  <div class="leg"><div class="ld" style="background:var(--c6)"></div>owned — $0</div>
+  <div class="leg"><div class="ld" style="background:var(--c4)"></div>buy</div>
+</div>
+<div class="note p">i9-14900K has Intel UHD 770 iGPU. No discrete GPU needed — plug monitor into motherboard HDMI during Proxmox setup, then run permanently headless. Managed entirely via web UI from PC 3.</div>
+<div class="tw"><table>
+<thead><tr><th>Type</th><th>Part</th><th>Store</th><th class="r">CAD</th></tr></thead>
+<tbody>
+<tr class="own-r"><td><span class="pill p-cpu">CPU</span></td><td><span class="pn">Intel Core i9-14900K <span class="tag t-own">owned</span></span><span class="pno">24c/32t · LGA1700 · UHD 770 iGPU · 32 threads for VMs + CI builds · better than 5900X spec</span></td><td>—</td><td class="pr o">$0</td></tr>
+<tr class="own-r"><td><span class="pill p-mb">Motherboard</span></td><td><span class="pn">ASUS ITX Z790 <span class="tag t-own">owned</span></span><span class="pno">LGA1700 · mini-ITX · 2× DDR5 · max 64 GB · IOMMU · workload confirmed fits · no new board needed</span></td><td>—</td><td class="pr o">$0</td></tr>
+<tr><td><span class="pill p-ram">RAM</span></td><td><span class="pn">G.Skill Ripjaws S5 64 GB DDR5-6000 (2× 32 GB)</span><span class="pno">ITX Z790 2-slot ceiling · 64 GB confirmed sufficient for all VMs + LXCs · 6000MHz CL30 optimal for i9</span></td><td><span class="pno">Canada Computers</span></td><td class="pr">$260</td></tr>
+<tr><td><span class="pill p-stor">NVMe boot</span></td><td><span class="pn">Samsung 990 Pro 512 GB PCIe 4.0</span><span class="pno">Proxmox OS + ISO storage · separate from VM data · PCIe 4.0 on Z790</span></td><td><span class="pno">Memory Express</span></td><td class="pr">$90</td></tr>
+<tr class="own-r"><td><span class="pill p-stor">NVMe VMs</span></td><td><span class="pn">Your 2 TB NVMe #1 <span class="tag t-own">owned</span></span><span class="pno">All VM virtual disks · repos · build artifacts · databases · Gitea storage</span></td><td>—</td><td class="pr o">$0</td></tr>
+<tr class="own-r"><td><span class="pill p-stor">HDD</span></td><td><span class="pn">Your existing HDD <span class="tag t-own">owned</span></span><span class="pno">Company COS backup staging · cold data · offload before syncing to NAS + B2</span></td><td>—</td><td class="pr o">$0</td></tr>
+<tr class="own-r"><td><span class="pill p-cool">Cooler</span></td><td><span class="pn">Your existing cooler <span class="tag t-own">owned</span></span><span class="pno">Confirm LGA1700 bracket — check manufacturer spec page · most 2022+ AIOs include it</span></td><td>—</td><td class="pr o">$0</td></tr>
+<tr><td><span class="pill p-psu">PSU</span></td><td><span class="pn">Seasonic Focus GX 850W 80+ Gold</span><span class="pno">1600W goes to PC 3 · 850W plenty for headless i9-14900K server · fully modular · fanless at low load</span></td><td><span class="pno">Canada Computers</span></td><td class="pr">$165</td></tr>
+<tr class="own-r"><td><span class="pill p-cas">Case</span></td><td><span class="pn">Your existing ITX case <span class="tag t-own">owned</span></span><span class="pno">ITX board stays in current case · no new case needed</span></td><td>—</td><td class="pr o">$0</td></tr>
+<tr><td><span class="pill p-per">USB</span></td><td><span class="pn">SanDisk Ultra 32 GB USB-A</span><span class="pno">Proxmox install media</span></td><td><span class="pno">Any</span></td><td class="pr">$12</td></tr>
+<tr class="tr-sep"><td colspan="3">Owned — CPU · MB · NVMe · HDD · cooler · case</td><td class="pr o">$0</td></tr>
+<tr class="tr-tot"><td colspan="3">PC 2 total — new parts only</td><td class="pr">~$527</td></tr>
+</tbody></table></div>
+</div>
+ 
+<div class="sec">
+<div class="sh"><span class="sh-text">vm resource allocation</span></div>
+<div class="mr">
+  <div class="met"><div class="ml">vCPUs alloc.</div><div class="mv">18</div><div class="ms">of 32t · 14 free</div></div>
+  <div class="met"><div class="ml">RAM alloc.</div><div class="mv">58.5 GB</div><div class="ms">of 64 GB · 5.5 free</div></div>
+  <div class="met"><div class="ml">NVMe VMs</div><div class="mv">~780 GB</div><div class="ms">of 2 TB owned SSD</div></div>
+  <div class="met"><div class="ml">HDD</div><div class="mv">your HDD</div><div class="ms">COS + cold backup</div></div>
+</div>
+</div>
+ 
+<div class="sec">
+<div class="sh"><span class="sh-text">vm layout — 3 vms + 5 lxcs</span></div>
+<div class="vg">
+  <div class="vc hl2"><span class="vb" style="background:var(--c2d);color:var(--c2);">VM 1</span><div class="vt">Dev sandbox</div><div class="vd">6 vCPU · 24 GB RAM<br>200 GB NVMe<br>SSH from PC 3<br>Docker + K3s</div><div class="bar"><div class="bf" style="width:75%;background:var(--c2);"></div></div></div>
+  <div class="vc hl2"><span class="vb" style="background:var(--c2d);color:var(--c2);">VM 2</span><div class="vt">Company COS backup</div><div class="vd">2 vCPU · 8 GB RAM<br>64 GB NVMe + HDD<br>rclone + restic</div><div class="bar"><div class="bf" style="width:20%;background:var(--c2);"></div></div></div>
+  <div class="vc hl2"><span class="vb" style="background:var(--c2d);color:var(--c2);">VM 3</span><div class="vt">Info storage</div><div class="vd">2 vCPU · 12 GB RAM<br>300 GB NVMe<br>Nextcloud + MinIO</div><div class="bar"><div class="bf" style="width:28%;background:var(--c2);"></div></div></div>
+  <div class="vc"><span class="vb" style="background:var(--bg5);color:var(--text2);">LXC</span><div class="vt">Pi-hole</div><div class="vd">1 vCPU · 512 MB<br>8 GB NVMe</div><div class="bar"><div class="bf" style="width:5%;background:var(--text3);"></div></div></div>
+  <div class="vc"><span class="vb" style="background:var(--bg5);color:var(--text2);">LXC</span><div class="vt">Gitea</div><div class="vd">2 vCPU · 4 GB RAM<br>100 GB NVMe</div><div class="bar"><div class="bf" style="width:18%;background:var(--text3);"></div></div></div>
+  <div class="vc"><span class="vb" style="background:var(--bg5);color:var(--text2);">LXC</span><div class="vt">Woodpecker CI</div><div class="vd">2 vCPU · 4 GB RAM<br>64 GB NVMe</div><div class="bar"><div class="bf" style="width:18%;background:var(--text3);"></div></div></div>
+  <div class="vc"><span class="vb" style="background:var(--bg5);color:var(--text2);">LXC</span><div class="vt">Vaultwarden</div><div class="vd">1 vCPU · 1 GB RAM<br>8 GB NVMe</div><div class="bar"><div class="bf" style="width:5%;background:var(--text3);"></div></div></div>
+  <div class="vc"><span class="vb" style="background:var(--bg5);color:var(--text2);">LXC</span><div class="vt">Nginx Proxy Mgr</div><div class="vd">1 vCPU · 1 GB RAM<br>8 GB NVMe</div><div class="bar"><div class="bf" style="width:5%;background:var(--text3);"></div></div></div>
+</div>
+</div>
+</div>
+ 

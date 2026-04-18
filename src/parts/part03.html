@@ -1,0 +1,731 @@
+<!-- ═══════════════ NETWORK ═══════════════ -->
+<div class="pg" id="p-net">
+<div class="page-hero">
+  <div class="page-num">05 / INFRASTRUCTURE</div>
+  <div class="page-title" style="color:var(--c5);">100G Home Network</div>
+  <div class="page-sub">Mikrotik CRS317 core switch · 25G servers · 2.5G desktop · pfSense firewall · VLANs · Tailscale VPN</div>
+</div>
+ 
+<div class="sec">
+<div class="sh"><span class="sh-text">network hardware</span></div>
+<div class="tw"><table>
+<thead><tr><th>Device</th><th>Details</th><th>Store</th><th class="r">CAD</th></tr></thead>
+<tbody>
+<tr><td><span class="pill p-net">Core switch</span></td><td><span class="pn">Mikrotik CRS317-1G-16S+RM</span><span class="pno">16× SFP+ (10G) · 1× 100G QSFP28 · rackmount · Layer 3 capable · VLANs · best value 10G switch · RouterOS</span></td><td><span class="pno">Mikrotik reseller CA</span></td><td class="pr">$550</td></tr>
+<tr><td><span class="pill p-net">Firewall</span></td><td><span class="pn">Protectli VP2420 (pfSense)</span><span class="pno">4× 2.5G · fanless · pfSense/OPNsense · full firewall + IDS/IPS + VPN endpoint</span></td><td><span class="pno">Protectli.com</span></td><td class="pr">$430</td></tr>
+<tr><td><span class="pill p-net">Desktop switch</span></td><td><span class="pn">TP-Link TL-SG108-M2 8-port 2.5G</span><span class="pno">PC 3 + peripherals · 2.5G all ports · unmanaged · sits at desk</span></td><td><span class="pno">Amazon CA</span></td><td class="pr">$90</td></tr>
+<tr><td><span class="pill p-net">PoE switch</span></td><td><span class="pn">TP-Link TL-SG1210MP 10-port PoE+</span><span class="pno">8× PoE ports · 150W budget · powers all security cameras · connects to core switch</span></td><td><span class="pno">Amazon CA</span></td><td class="pr">$140</td></tr>
+<tr><td><span class="pill p-net">Wi-Fi AP</span></td><td><span class="pn">TP-Link Deco XE75 Pro Wi-Fi 6E 2-pack</span><span class="pno">Wi-Fi 6E · 6GHz backhaul · 10G uplink port · whole-home coverage · pfSense DHCP compatible</span></td><td><span class="pno">BestBuy CA</span></td><td class="pr">$350</td></tr>
+<tr><td><span class="pill p-net">DAC cables ×4</span></td><td><span class="pn">10G SFP+ DAC cables 1m ×4</span><span class="pno">PC 1 → switch · NAS → switch · PC 2 (via adapter) · passive copper · no SFP+ module needed</span></td><td><span class="pno">fs.com</span></td><td class="pr">$60</td></tr>
+<tr><td><span class="pill p-net">SFP+ adapters</span></td><td><span class="pno">SFP+ to 2.5G RJ45 adapters ×2</span><span class="pno">For devices without SFP+ ports · plug into CRS317 · connect RJ45 devices at 2.5G</span><span class="pn"></span></td><td><span class="pno">fs.com</span></td><td class="pr">$40</td></tr>
+<tr><td><span class="pill p-net">Cat6A ×15</span></td><td><span class="pn">Monoprice Cat6A flat patch (various lengths)</span><span class="pno">10G capable · all wired runs · one per device</span></td><td><span class="pno">Amazon CA</span></td><td class="pr">$80</td></tr>
+<tr><td><span class="pill p-net">VPN</span></td><td><span class="pn">Tailscale Personal Pro</span><span class="pno">Mesh VPN · zero-config · NAT traversal · encrypted · home access from anywhere</span></td><td><span class="pno">tailscale.com</span></td><td class="pr">~$100/yr</td></tr>
+<tr class="tr-tot"><td colspan="3">Network hardware total</td><td class="pr">~$1,840</td></tr>
+</tbody></table></div>
+</div>
+ 
+<div class="sec">
+<div class="sh"><span class="sh-text">vlan architecture</span></div>
+<div class="sg">
+  <div class="sc"><span class="pill p-net">VLAN 10</span><div class="st">Servers</div><div class="sd">PC 1 · PC 2 · NAS · all on 10/25G · unrestricted internal access · management VLAN</div></div>
+  <div class="sc"><span class="pill p-net">VLAN 20</span><div class="st">Desktop</div><div class="sd">PC 3 · can reach VLAN 10 servers · can reach company server via VPN</div></div>
+  <div class="sc"><span class="pill p-net">VLAN 30</span><div class="st">IoT / Smart home</div><div class="sd">All smart home devices · cameras · Zigbee bridges · isolated · can only reach HA VM</div></div>
+  <div class="sc"><span class="pill p-net">VLAN 40</span><div class="st">Grow</div><div class="sd">Grow room devices · sensors · smart plugs · isolated · can only reach grow HA VM</div></div>
+  <div class="sc"><span class="pill p-net">VLAN 50</span><div class="st">Cameras</div><div class="sd">All PoE cameras · strictly isolated · can ONLY reach Frigate VM · no internet access</div></div>
+  <div class="sc"><span class="pill p-net">VLAN 60</span><div class="st">Guest / Personal</div><div class="sd">Wi-Fi devices · phones · tablets · internet only · no access to VLAN 10/30/40/50</div></div>
+</div>
+</div>
+ 
+<div class="sec">
+<div class="sh"><span class="sh-text">network topology diagram</span></div>
+<div class="net-box">
+<svg width="100%" viewBox="0 0 680 520" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+</defs>
+<!-- ISP -->
+<rect x="260" y="10" width="160" height="36" rx="4" fill="#1e2022" stroke="rgba(255,255,255,0.15)" stroke-width="0.5"/>
+<text x="340" y="28" text-anchor="middle" fill="#888580" font-size="10" font-family="JetBrains Mono,monospace" font-weight="700">ISP MODEM</text>
+<!-- Firewall -->
+<rect x="240" y="66" width="200" height="38" rx="4" fill="#1e2022" stroke="rgba(0,229,160,0.4)" stroke-width="1"/>
+<text x="340" y="84" text-anchor="middle" fill="#00e5a0" font-size="11" font-family="JetBrains Mono,monospace" font-weight="700">pfSense Firewall</text>
+<text x="340" y="97" text-anchor="middle" fill="#484542" font-size="9" font-family="JetBrains Mono,monospace">Protectli VP2420 · 2.5G · IDS/IPS</text>
+<!-- ISP → FW -->
+<line x1="340" y1="46" x2="340" y2="66" stroke="rgba(255,255,255,0.2)" stroke-width="1" marker-end="url(#arr)"/>
+<!-- Core Switch -->
+<rect x="200" y="130" width="280" height="38" rx="4" fill="#1e2022" stroke="rgba(250,204,21,0.4)" stroke-width="1"/>
+<text x="340" y="148" text-anchor="middle" fill="#facc15" font-size="11" font-family="JetBrains Mono,monospace" font-weight="700">Mikrotik CRS317 Core Switch</text>
+<text x="340" y="161" text-anchor="middle" fill="#484542" font-size="9" font-family="JetBrains Mono,monospace">16× SFP+ 10G · 1× QSFP28 100G · VLANs</text>
+<!-- FW → Switch -->
+<line x1="340" y1="104" x2="340" y2="130" stroke="rgba(0,229,160,0.4)" stroke-width="1.5" marker-end="url(#arr)"/>
+ 
+<!-- PC 1 -->
+<rect x="20" y="220" width="140" height="54" rx="4" fill="#1e2022" stroke="rgba(0,229,160,0.35)" stroke-width="0.5"/>
+<text x="90" y="238" text-anchor="middle" fill="#00e5a0" font-size="10" font-family="JetBrains Mono,monospace" font-weight="700">PC 1 HOMELAB</text>
+<text x="90" y="251" text-anchor="middle" fill="#484542" font-size="9" font-family="JetBrains Mono,monospace">25G SFP+ DAC</text>
+<text x="90" y="263" text-anchor="middle" fill="#484542" font-size="9" font-family="JetBrains Mono,monospace">Proxmox · 7 VMs</text>
+<line x1="90" y1="220" x2="200" y2="168" stroke="rgba(0,229,160,0.5)" stroke-width="1.5" marker-end="url(#arr)" fill="none"/>
+<text x="118" y="194" fill="#484542" font-size="8" font-family="JetBrains Mono,monospace" text-anchor="middle">25G</text>
+ 
+<!-- NAS -->
+<rect x="180" y="220" width="140" height="54" rx="4" fill="#1e2022" stroke="rgba(56,189,248,0.35)" stroke-width="0.5"/>
+<text x="250" y="238" text-anchor="middle" fill="#38bdf8" font-size="10" font-family="JetBrains Mono,monospace" font-weight="700">NAS SERVER</text>
+<text x="250" y="251" text-anchor="middle" fill="#484542" font-size="9" font-family="JetBrains Mono,monospace">25G SFP+ DAC</text>
+<text x="250" y="263" text-anchor="middle" fill="#484542" font-size="9" font-family="JetBrains Mono,monospace">TrueNAS · 80TB</text>
+<line x1="250" y1="220" x2="290" y2="168" stroke="rgba(56,189,248,0.5)" stroke-width="1.5" marker-end="url(#arr)" fill="none"/>
+<text x="265" y="192" fill="#484542" font-size="8" font-family="JetBrains Mono,monospace" text-anchor="middle">25G</text>
+ 
+<!-- PC 2 -->
+<rect x="340" y="220" width="140" height="54" rx="4" fill="#1e2022" stroke="rgba(167,139,250,0.35)" stroke-width="0.5"/>
+<text x="410" y="238" text-anchor="middle" fill="#a78bfa" font-size="10" font-family="JetBrains Mono,monospace" font-weight="700">PC 2 DEV</text>
+<text x="410" y="251" text-anchor="middle" fill="#484542" font-size="9" font-family="JetBrains Mono,monospace">2.5G → adapter</text>
+<text x="410" y="263" text-anchor="middle" fill="#484542" font-size="9" font-family="JetBrains Mono,monospace">Proxmox · VMs</text>
+<line x1="410" y1="220" x2="390" y2="168" stroke="rgba(167,139,250,0.5)" stroke-width="1.5" marker-end="url(#arr)" fill="none"/>
+<text x="398" y="192" fill="#484542" font-size="8" font-family="JetBrains Mono,monospace" text-anchor="middle">2.5G</text>
+ 
+<!-- PC 3 -->
+<rect x="500" y="220" width="140" height="54" rx="4" fill="#1e2022" stroke="rgba(255,107,71,0.35)" stroke-width="0.5"/>
+<text x="570" y="238" text-anchor="middle" fill="#ff6b47" font-size="10" font-family="JetBrains Mono,monospace" font-weight="700">PC 3 DESKTOP</text>
+<text x="570" y="251" text-anchor="middle" fill="#484542" font-size="9" font-family="JetBrains Mono,monospace">2.5G switch</text>
+<text x="570" y="263" text-anchor="middle" fill="#484542" font-size="9" font-family="JetBrains Mono,monospace">Win 11 · RTX 5090</text>
+<line x1="570" y1="220" x2="450" y2="168" stroke="rgba(255,107,71,0.5)" stroke-width="1.5" marker-end="url(#arr)" fill="none"/>
+<text x="520" y="188" fill="#484542" font-size="8" font-family="JetBrains Mono,monospace" text-anchor="middle">2.5G</text>
+ 
+<!-- PoE Switch -->
+<rect x="20" y="320" width="140" height="44" rx="4" fill="#1e2022" stroke="rgba(56,189,248,0.25)" stroke-width="0.5"/>
+<text x="90" y="338" text-anchor="middle" fill="#38bdf8" font-size="10" font-family="JetBrains Mono,monospace" font-weight="700">PoE Switch</text>
+<text x="90" y="352" text-anchor="middle" fill="#484542" font-size="9" font-family="JetBrains Mono,monospace">TP-Link · 8× PoE · cameras</text>
+<line x1="90" y1="320" x2="90" y2="274" stroke="rgba(56,189,248,0.3)" stroke-width="1" marker-end="url(#arr)" fill="none"/>
+ 
+<!-- Wi-Fi AP -->
+<rect x="180" y="320" width="140" height="44" rx="4" fill="#1e2022" stroke="rgba(250,204,21,0.25)" stroke-width="0.5"/>
+<text x="250" y="338" text-anchor="middle" fill="#facc15" font-size="10" font-family="JetBrains Mono,monospace" font-weight="700">Wi-Fi 6E AP</text>
+<text x="250" y="352" text-anchor="middle" fill="#484542" font-size="9" font-family="JetBrains Mono,monospace">Deco XE75 Pro · 6GHz</text>
+<line x1="250" y1="320" x2="280" y2="274" stroke="rgba(250,204,21,0.3)" stroke-width="1" marker-end="url(#arr)" fill="none"/>
+ 
+<!-- UPS -->
+<rect x="340" y="320" width="140" height="44" rx="4" fill="#1e2022" stroke="rgba(74,222,128,0.25)" stroke-width="0.5"/>
+<text x="410" y="338" text-anchor="middle" fill="#4ade80" font-size="10" font-family="JetBrains Mono,monospace" font-weight="700">APC Smart-UPS</text>
+<text x="410" y="352" text-anchor="middle" fill="#484542" font-size="9" font-family="JetBrains Mono,monospace">1500VA · PC1+PC2+NAS</text>
+ 
+<!-- Cameras -->
+<rect x="20" y="410" width="140" height="44" rx="4" fill="#1e2022" stroke="rgba(255,107,71,0.25)" stroke-width="0.5"/>
+<text x="90" y="428" text-anchor="middle" fill="#ff6b47" font-size="10" font-family="JetBrains Mono,monospace" font-weight="700">8× PoE Cameras</text>
+<text x="90" y="442" text-anchor="middle" fill="#484542" font-size="9" font-family="JetBrains Mono,monospace">4K · Reolink + Amcrest</text>
+<line x1="90" y1="410" x2="90" y2="364" stroke="rgba(255,107,71,0.3)" stroke-width="1" marker-end="url(#arr)" fill="none"/>
+ 
+<!-- IoT -->
+<rect x="180" y="410" width="140" height="44" rx="4" fill="#1e2022" stroke="rgba(74,222,128,0.25)" stroke-width="0.5"/>
+<text x="250" y="428" text-anchor="middle" fill="#4ade80" font-size="10" font-family="JetBrains Mono,monospace" font-weight="700">Smart Home IoT</text>
+<text x="250" y="442" text-anchor="middle" fill="#484542" font-size="9" font-family="JetBrains Mono,monospace">Zigbee · Z-Wave · VLAN 30</text>
+<line x1="250" y1="410" x2="250" y2="364" stroke="rgba(74,222,128,0.3)" stroke-width="1" marker-end="url(#arr)" fill="none"/>
+ 
+<!-- Tailscale cloud -->
+<rect x="480" y="320" width="160" height="44" rx="4" fill="#1e2022" stroke="rgba(167,139,250,0.25)" stroke-width="0.5"/>
+<text x="560" y="338" text-anchor="middle" fill="#a78bfa" font-size="10" font-family="JetBrains Mono,monospace" font-weight="700">Tailscale VPN</text>
+<text x="560" y="352" text-anchor="middle" fill="#484542" font-size="9" font-family="JetBrains Mono,monospace">Mesh · remote access</text>
+<line x1="560" y1="320" x2="510" y2="274" stroke="rgba(167,139,250,0.3)" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arr)" fill="none"/>
+ 
+<!-- Legend -->
+<line x1="30" y1="490" x2="60" y2="490" stroke="rgba(0,229,160,0.6)" stroke-width="1.5"/>
+<text x="66" y="494" fill="#484542" font-size="9" font-family="JetBrains Mono,monospace">25G SFP+</text>
+<line x1="140" y1="490" x2="170" y2="490" stroke="rgba(167,139,250,0.6)" stroke-width="1.5"/>
+<text x="176" y="494" fill="#484542" font-size="9" font-family="JetBrains Mono,monospace">2.5G</text>
+<line x1="230" y1="490" x2="260" y2="490" stroke="rgba(167,139,250,0.6)" stroke-width="1.5" stroke-dasharray="4 3"/>
+<text x="266" y="494" fill="#484542" font-size="9" font-family="JetBrains Mono,monospace">VPN tunnel</text>
+</svg>
+</div>
+</div>
+ 
+<div class="sec">
+<div class="sh"><span class="sh-text">100g upgrade path</span></div>
+<div class="note m">The Mikrotik CRS317 has one 100G QSFP28 port today. When you're ready for full 100G, add a Mellanox ConnectX-5 100G NIC to PC 1 and NAS (~$150 each used), connect them to the QSFP28 port via a 100G DAC breakout cable, and your storage traffic runs at 100 Gbps. The rest of the network stays at 10/25G. Full upgrade cost: ~$400.</div>
+<div class="note g">Current 25G backbone between PC 1 and NAS gives ~3 GB/s real-world throughput — enough for simultaneous 4K transcoding, NFS mounts, and backup jobs with no bottleneck. 100G (12.5 GB/s) is overkill today but the hardware is ready.</div>
+</div>
+</div>
+ 
+<!-- ═══════════════ SECURITY ═══════════════ -->
+<div class="pg" id="p-sec">
+<div class="page-hero">
+  <div class="page-num">06 / INFRASTRUCTURE</div>
+  <div class="page-title" style="color:var(--c3);">Security System</div>
+  <div class="page-sub">8× 4K PoE cameras · Frigate NVR · Google Coral TPU · Konnected alarm · HA Alarmo · zero subscription</div>
+</div>
+ 
+<div class="sec">
+<div class="sh"><span class="sh-text">camera hardware</span></div>
+<div class="tw"><table>
+<thead><tr><th>Location</th><th>Camera</th><th>Store</th><th class="r">CAD</th></tr></thead>
+<tbody>
+<tr><td><span class="pno">Front door</span></td><td><span class="pn">Reolink Video Doorbell PoE</span><span class="pno">4K · RTSP · PoE · no subscription · HA doorbell integration · package detection</span></td><td><span class="pno">Amazon CA</span></td><td class="pr">$130</td></tr>
+<tr><td><span class="pno">Driveway</span></td><td><span class="pn">Reolink RLC-810A 4K PoE</span><span class="pno">4K · PoE · person + vehicle detection · wide 105° FOV · excellent Frigate compatibility</span></td><td><span class="pno">Amazon CA</span></td><td class="pr">$90</td></tr>
+<tr><td><span class="pno">Backyard</span></td><td><span class="pn">Reolink RLC-810A 4K PoE</span><span class="pno">4K · wide angle · covers full yard · night vision</span></td><td><span class="pno">Amazon CA</span></td><td class="pr">$90</td></tr>
+<tr><td><span class="pno">Garage</span></td><td><span class="pn">Reolink RLC-810A 4K PoE</span><span class="pno">4K · covers garage door + side of driveway · vehicle detection</span></td><td><span class="pno">Amazon CA</span></td><td class="pr">$90</td></tr>
+<tr><td><span class="pno">Side gate L</span></td><td><span class="pn">Amcrest UltraHD IP8M-2496EW 4K</span><span class="pno">4K · PoE · narrow 85° · covers side access point · ONVIF</span></td><td><span class="pno">Amazon CA</span></td><td class="pr">$80</td></tr>
+<tr><td><span class="pno">Side gate R</span></td><td><span class="pn">Amcrest UltraHD IP8M-2496EW 4K</span><span class="pno">4K · PoE · covers second side access point</span></td><td><span class="pno">Amazon CA</span></td><td class="pr">$80</td></tr>
+<tr><td><span class="pno">Living room</span></td><td><span class="pn">Reolink E1 Outdoor PoE 5MP</span><span class="pno">Indoor/outdoor · 5MP · wide 105° · main floor entry points · PoE</span></td><td><span class="pno">Amazon CA</span></td><td class="pr">$65</td></tr>
+<tr><td><span class="pno">Grow room</span></td><td><span class="pn">Reolink E1 Outdoor PoE 5MP</span><span class="pno">Monitors grow environment visually · timelapse feed to grow VM · isolated VLAN 40</span></td><td><span class="pno">Amazon CA</span></td><td class="pr">$65</td></tr>
+<tr class="tr-tot"><td colspan="3">Cameras total</td><td class="pr">~$690</td></tr>
+</tbody></table></div>
+</div>
+ 
+<div class="sec">
+<div class="sh"><span class="sh-text">security system hardware</span></div>
+<div class="tw"><table>
+<thead><tr><th>Item</th><th>Details</th><th>Store</th><th class="r">CAD</th></tr></thead>
+<tbody>
+<tr><td><span class="pn">Google Coral USB TPU</span></td><td><span class="pno">USB passthru to VM 6 · Frigate AI inference 100+ FPS · zero GPU/CPU impact · person/vehicle/package</span></td><td><span class="pno">Canada Computers</span></td><td class="pr">$80</td></tr>
+<tr><td><span class="pn">Konnected Alarm Panel Pro</span></td><td><span class="pno">Replaces traditional alarm board · works with existing door/window/motion sensors · Wi-Fi · HA native</span></td><td><span class="pno">konnected.io</span></td><td class="pr">$190</td></tr>
+<tr><td><span class="pn">Door/window sensors ×6</span></td><td><span class="pno">Ecolink Z-Wave door/window sensors · pairs to main HA Z-Wave controller · battery-powered</span></td><td><span class="pno">Amazon CA</span></td><td class="pr">$120</td></tr>
+<tr><td><span class="pn">Motion sensors ×3</span></td><td><span class="pno">Ecolink Z-Wave PIR motion · main floor + hallways · pairs to main HA</span></td><td><span class="pno">Amazon CA</span></td><td class="pr">$90</td></tr>
+<tr><td><span class="pn">Siren (outdoor)</span></td><td><span class="pno">Dome Z-Wave siren · HA Alarmo triggers on alarm condition · 105 dB</span></td><td><span class="pno">Amazon CA</span></td><td class="pr">$65</td></tr>
+<tr><td><span class="pn">Smart lock</span></td><td><span class="pno">Schlage Encode Plus WiFi · HA integration · keypad + Apple Home key + app · front door</span></td><td><span class="pno">Home Depot CA</span></td><td class="pr">$320</td></tr>
+<tr class="tr-tot"><td colspan="3">Security hardware total (ex cameras)</td><td class="pr">~$865</td></tr>
+</tbody></table></div>
+</div>
+ 
+<div class="sec">
+<div class="sh"><span class="sh-text">frigate detection pipeline</span></div>
+<div class="sg">
+  <div class="sc"><span class="pill p-net">1</span><div class="st">Camera → RTSP</div><div class="sd">8 cameras stream H.264/H.265 over VLAN 50 to Frigate VM. No internet. Local only.</div></div>
+  <div class="sc"><span class="pill p-net">2</span><div class="st">GPU decodes</div><div class="sd">RTX 4070 #2 NVDEC decodes all 8 streams in hardware. Zero CPU load. Real-time.</div></div>
+  <div class="sc"><span class="pill p-net">3</span><div class="st">Coral infers</div><div class="sd">Decoded frames to Coral TPU. Object detection at 100+ FPS. Under 50ms per frame.</div></div>
+  <div class="sc"><span class="pill p-net">4</span><div class="st">Event fires</div><div class="sd">Person detected → Frigate sends event to HA via MQTT. HA automation runs.</div></div>
+  <div class="sc"><span class="pill p-net">5</span><div class="st">Notification</div><div class="sd">HA sends push notification with snapshot image to your phone within 2–3 seconds.</div></div>
+  <div class="sc"><span class="pill p-net">6</span><div class="st">Clip saved</div><div class="sd">10-second event clip saved to 12 TB dedicated IronWolf Pro. 90+ days retention.</div></div>
+</div>
+</div>
+ 
+<div class="note g">Entire system runs with zero cloud subscription. No Ring, no Nest, no ADT monthly fee. Equivalent subscription security would cost $50–80/month. This system pays for itself in 18–24 months.</div>
+<div class="note">Camera VLAN 50 is strictly isolated — cameras can only reach the Frigate VM IP, nothing else. A compromised camera cannot reach the internet, your network devices, or any other service. This is the correct way to deploy IP cameras.</div>
+<div class="note a">Grow room camera is on VLAN 40 (grow), not VLAN 50 (cameras). It streams to both Frigate VM (for recording) and grow HA VM (for timelapse/monitoring). pfSense firewall rules handle the selective access.</div>
+</div>
+ 
+<!-- ═══════════════ GROW ═══════════════ -->
+<div class="pg" id="p-grow">
+<div class="page-hero">
+  <div class="page-num">07 / INFRASTRUCTURE</div>
+  <div class="page-title" style="color:var(--c6);">Grow Automation</div>
+  <div class="page-sub">VM 5 on PC 1 · dedicated HA instance · isolated from main HA · sensors + lighting + HVAC + CO2 + irrigation</div>
+</div>
+ 
+<div class="sec">
+<div class="sh"><span class="sh-text">grow automation hardware</span></div>
+<div class="tw"><table>
+<thead><tr><th>Item</th><th>Details</th><th>Store</th><th class="r">CAD</th></tr></thead>
+<tbody>
+<tr><td><span class="pn">SONOFF Zigbee 3.0 USB Dongle Plus</span></td><td><span class="pno">USB passthru to grow VM · dedicated Zigbee network · separate from main HA Zigbee · controls all grow devices</span></td><td><span class="pno">Amazon CA</span></td><td class="pr">$25</td></tr>
+<tr><td><span class="pn">SONOFF SNZB-02D Zigbee temp/humidity ×4</span></td><td><span class="pno">One per grow zone · display screen · ±0.2°C accuracy · 2-year battery · cheap and reliable</span></td><td><span class="pno">Amazon CA</span></td><td class="pr">$80</td></tr>
+<tr><td><span class="pn">SCD41 CO2 sensor ×2 (ESPHome)</span></td><td><span class="pno">True CO2 photoacoustic sensor · ±40 ppm accuracy · integrates via ESPHome ESP32 bridge · ~$45 each</span></td><td><span class="pno">Digikey CA</span></td><td class="pr">$90</td></tr>
+<tr><td><span class="pn">Apogee SQ-522 PPFD sensor</span></td><td><span class="pno">True quantum PAR · ±5% accuracy · DLI calculation in HA · RS-232 via ESP32 bridge · professional grade</span></td><td><span class="pno">Apogee Instruments</span></td><td class="pr">$380</td></tr>
+<tr><td><span class="pn">SONOFF S31 Zigbee smart plugs ×8</span></td><td><span class="pno">Lights · fans · dehumidifier · humidifier · CO2 solenoid · pumps · energy monitoring per outlet</span></td><td><span class="pno">Amazon CA</span></td><td class="pr">$120</td></tr>
+<tr><td><span class="pn">SONOFF ZBMINIL2 Zigbee relay ×3</span></td><td><span class="pno">In-wall relay for hardwired devices · irrigation pumps · exhaust fans · fits junction box</span></td><td><span class="pno">Amazon CA</span></td><td class="pr">$60</td></tr>
+<tr><td><span class="pn">ESP32 DevKit ×3 (ESPHome)</span></td><td><span class="pno">CO2 sensor bridge + PPFD bridge + spare · flashed with ESPHome · direct HA integration · no cloud</span></td><td><span class="pno">Amazon CA</span></td><td class="pr">$30</td></tr>
+<tr><td><span class="pn">VPD probe (BlueLab Guardian)</span></td><td><span class="pno">Measures air temp + RH + leaf temp simultaneously · calculates VPD · RS-232 output · professional</span></td><td><span class="pno">BlueLab CA</span></td><td class="pr">$280</td></tr>
+<tr><td><span class="pn">InfluxDB + Grafana (VM 5)</span></td><td><span class="pno">Long-term time-series sensor logging · grow-by-grow comparison · dashboards · runs inside grow VM</span></td><td><span class="pno">Free / open source</span></td><td class="pr">$0</td></tr>
+<tr class="tr-tot"><td colspan="3">Grow automation hardware total</td><td class="pr">~$1,065</td></tr>
+</tbody></table></div>
+</div>
+ 
+<div class="sec">
+<div class="sh"><span class="sh-text">what gets automated</span></div>
+<div class="sg">
+  <div class="sc"><span class="pill p-sw">Lighting</span><div class="st">Photoperiod schedules</div><div class="sd">Veg (18/6) + flower (12/12) schedules · sunrise/sunset ramp · DLI target tracking via PPFD · auto-adjust output</div></div>
+  <div class="sc"><span class="pill p-sw">Climate</span><div class="st">VPD management</div><div class="sd">Automated fan/AC/dehumidifier based on real VPD readings · day/night profiles · alerts if out of range</div></div>
+  <div class="sc"><span class="pill p-sw">CO2</span><div class="st">CO2 dosing</div><div class="sd">Open solenoid when CO2 drops below target · close when at target · lights-on only · SCD41 feedback loop</div></div>
+  <div class="sc"><span class="pill p-sw">Irrigation</span><div class="st">Automated watering</div><div class="sd">Schedule or moisture-triggered · pump control via relay · run-to-waste or recirculating · EC/pH logging optional</div></div>
+  <div class="sc"><span class="pill p-sw">Alerts</span><div class="st">Push notifications</div><div class="sd">Temp/RH out of range · pump failure · light missed schedule · CO2 tank low · power outage</div></div>
+  <div class="sc"><span class="pill p-sw">Logging</span><div class="st">InfluxDB + Grafana</div><div class="sd">Every sensor logged · grow-by-grow comparison dashboard · identify patterns across cycles</div></div>
+</div>
+</div>
+ 
+<div class="note g">The Apogee SQ-522 + VPD probe combination is what commercial cultivators use. Combined with HA automations you get consistent DLI every cycle, perfect VPD management, and a historical record to optimise future grows.</div>
+<div class="note">VM 5 runs a completely separate Home Assistant instance from VM 2 (main HA). Grow devices pair to grow HA. Main home devices pair to main HA. No interference. If grow VM crashes, your lights and locks still work.</div>
+<div class="note a">VLAN 40 (grow) is isolated — grow room smart plugs and sensors can only reach VM 5. They cannot reach the internet or any other device. Someone compromising a smart plug cannot pivot to your network.</div>
+</div>
+ 
+<!-- ═══════════════ SETUP GUIDES ═══════════════ -->
+<div class="pg" id="p-setup">
+<div class="page-hero">
+  <div class="page-num">08 / OPERATIONS</div>
+  <div class="page-title" style="color:var(--c1);">Setup Guides</div>
+  <div class="page-sub">step-by-step launch sequence · Proxmox · TrueNAS · pfSense · Tailscale · Gitea · Frigate · HA · grow</div>
+</div>
+ 
+<div class="sec">
+<div class="sh"><span class="sh-text">recommended build + setup order</span></div>
+<div class="steps">
+  <div class="step"><div class="step-num c3">FIRST</div><div class="step-body"><div class="step-title">Build PC 3 Phase 1</div><div class="step-detail">You need a working machine immediately for SolidWorks. Build PC 3 on the ITX Z790 + RTX 4070 first. Install Windows 11 Pro. Install SolidWorks with the Studio Driver. You're operational within a day.</div></div></div>
+  <div class="step"><div class="step-num c2">SECOND</div><div class="step-body"><div class="step-title">Build + configure PC 2</div><div class="step-detail">Install Proxmox. Create VMs + LXCs. Launch Gitea, Woodpecker, Vaultwarden, Nginx Proxy Manager. This gets your dev pipeline running before PC 1 is set up.</div></div></div>
+  <div class="step"><div class="step-num c1">THIRD</div><div class="step-body"><div class="step-title">Network infrastructure</div><div class="step-detail">Set up pfSense firewall. Configure CRS317 switch with VLANs. Connect everything. Verify connectivity between all devices before adding servers.</div></div></div>
+  <div class="step"><div class="step-num c4">FOURTH</div><div class="step-body"><div class="step-title">Build NAS + PC 1 together</div><div class="step-detail">Build both simultaneously. Install TrueNAS on NAS first, configure ZFS pool. Then install Proxmox on PC 1, set up IOMMU, create VMs. This order means storage is ready when VMs need it.</div></div></div>
+  <div class="step"><div class="step-num c5">FIFTH</div><div class="step-body"><div class="step-title">Deploy security + grow</div><div class="step-detail">Run camera cables, install PoE switch, configure Frigate. Set up Konnected. Wire grow room sensors and smart plugs. Pair all Zigbee devices.</div></div></div>
+  <div class="step"><div class="step-num c6">ONGOING</div><div class="step-body"><div class="step-title">Phase 2 when RTX 5090 available</div><div class="step-detail">Swap ITX Z790 for ROG Maximus on PC 3. Move RTX 4070 temp GPU to PC 1 (it stays there permanently). Install 5090. Top up RAM to 128 GB. Move to O11 EVO XL case.</div></div></div>
+</div>
+</div>
+ 
+<div class="sec">
+<div class="sh"><span class="sh-text">proxmox ve — pc 1 + pc 2 setup</span></div>
+<div class="steps">
+  <div class="step"><div class="step-num c1">1</div><div class="step-body"><div class="step-title">Flash and boot Proxmox installer</div><div class="step-detail">Download Proxmox VE 8 ISO from proxmox.com. Flash to USB with Balena Etcher. Boot from USB. Install to dedicated NVMe boot drive. Set static IP during install.</div><div class="code">Target disk: /dev/nvme0n1 (256 GB boot NVMe)
+IP: 192.168.10.10 (PC 1) / 192.168.10.11 (PC 2)
+Gateway: 192.168.10.1 (pfSense)
+DNS: 192.168.10.10 (Pi-hole, set after)</div></div></div>
+  <div class="step"><div class="step-num c1">2</div><div class="step-body"><div class="step-title">Enable IOMMU (PC 1 only — for GPU passthrough)</div><div class="step-detail">Edit GRUB and kernel modules to enable IOMMU passthrough. Required before creating GPU-passthrough VMs.</div><div class="code"># Edit /etc/default/grub
+GRUB_CMDLINE_LINUX_DEFAULT="quiet amd_iommu=on iommu=pt"
+ 
+# Update grub and add kernel modules
+update-grub
+echo "vfio vfio_iommu_type1 vfio_pci vfio_virqfd" >> /etc/modules
+ 
+# Find GPU PCI IDs
+lspci -nn | grep NVIDIA
+# Add both 4070 PCI IDs to /etc/modprobe.d/vfio.conf
+echo "options vfio-pci ids=10de:2786,10de:22bc" > /etc/modprobe.d/vfio.conf
+update-initramfs -u && reboot</div></div></div>
+  <div class="step"><div class="step-num c1">3</div><div class="step-body"><div class="step-title">Configure ZFS storage pools</div><div class="step-detail">Create separate ZFS pools for VM disks (on NVMe) and HDD data. Use Proxmox web UI under Datacenter → Storage.</div><div class="code"># Create VM storage pool on NVMe (done in Proxmox UI)
+# Pool name: vm-storage, Type: ZFS, Device: NVMe
+ 
+# Create media mirror pool (PC 1 only, 2× HDD)
+zpool create media mirror /dev/sda /dev/sdb
+zfs set compression=lz4 media
+zfs set atime=off media
+ 
+# Create security NVR pool (PC 1 only, 1× HDD)
+zpool create nvr-footage /dev/sdc
+zfs set compression=lz4 nvr-footage</div></div></div>
+  <div class="step"><div class="step-num c1">4</div><div class="step-body"><div class="step-title">Create VMs and LXC containers</div><div class="step-detail">Use Proxmox web UI (https://192.168.10.10:8006). Create each VM from Ubuntu 22.04 ISO. For LXCs, use Proxmox CT templates. Assign vCPU, RAM, and disk as per VM layout table.</div><div class="code"># Key settings per VM:
+# VM 1 Plex: 4 vCPU, 16GB RAM, 300GB disk, add RTX 4070 #1 PCI device
+# VM 6 Frigate: 4 vCPU, 32GB RAM, 500GB disk, add RTX 4070 #2 + USB Coral TPU
+# All VMs: VirtIO NIC, VirtIO disk, CPU type = host</div></div></div>
+  <div class="step"><div class="step-num c1">5</div><div class="step-body"><div class="step-title">Configure Proxmox Backup Server</div><div class="step-detail">Install Proxmox Backup Server (PBS) as an LXC on PC 2. Configure backup jobs to run nightly at 2 AM. Point backup target to NAS via NFS.</div><div class="code"># In Proxmox UI: Datacenter → Backup
+# Add schedule: daily at 02:00
+# Mode: Snapshot (zero downtime)
+# Retention: keep-daily=7, keep-weekly=4, keep-monthly=3</div></div></div>
+</div>
+</div>
+ 
+<div class="sec">
+<div class="sh"><span class="sh-text">truenas scale — nas setup</span></div>
+<div class="steps">
+  <div class="step"><div class="step-num c4">1</div><div class="step-body"><div class="step-title">Install TrueNAS SCALE</div><div class="step-detail">Download TrueNAS SCALE ISO. Flash to USB. Boot NAS. Install to 256 GB boot NVMe. Access web UI at the NAS IP after reboot. Configure network interface with static IP.</div><div class="code">NAS IP: 192.168.10.12
+Web UI: https://192.168.10.12</div></div></div>
+  <div class="step"><div class="step-num c4">2</div><div class="step-body"><div class="step-title">Create RAIDZ2 storage pool</div><div class="step-detail">In TrueNAS UI: Storage → Create Pool. Select all 6× 20 TB HDDs. Choose RAIDZ2. Name the pool "data". Enable LZ4 compression. Set record size to 1M for media workloads.</div><div class="code">Pool name: data
+Layout: RAIDZ2 (6 wide)
+Disks: 6× 20TB IronWolf Pro
+Compression: LZ4
+Record size: 1M (media) / 128K (general)</div></div></div>
+  <div class="step"><div class="step-num c4">3</div><div class="step-body"><div class="step-title">Create datasets and NFS shares</div><div class="step-detail">Create datasets for media, backups, and company data. Enable NFS shares. PC 1 VMs mount the media share for Plex library. All PCs backup to the backups dataset.</div><div class="code">Datasets:
+  data/media        → NFS share → PC 1 VM 1 Plex
+  data/backups      → NFS share → Proxmox Backup Server
+  data/company      → NFS share → PC 2 VM 2/3
+  data/personal     → NFS share → PC 1 VM 3
+ 
+NFS: enable v4.1, set network to VLAN 10 only</div></div></div>
+  <div class="step"><div class="step-num c4">4</div><div class="step-body"><div class="step-title">Configure automated snapshots + replication</div><div class="step-detail">TrueNAS has built-in snapshot scheduling. Set hourly snapshots with 7-day retention. Configure cloud sync task to replicate to Backblaze B2 for offsite backup.</div><div class="code">Snapshot task: every hour, keep 168 (7 days)
+Cloud sync: data/backups → Backblaze B2
+  Schedule: nightly 03:00
+  Mode: Push + Mirror</div></div></div>
+  <div class="step"><div class="step-num c4">5</div><div class="step-body"><div class="step-title">Enable MinIO S3 endpoint</div><div class="step-detail">In TrueNAS SCALE, deploy MinIO as an app (Apps → MinIO). Point storage to the data/s3 dataset. This gives all your services an S3-compatible local endpoint for object storage and backups.</div><div class="code">MinIO endpoint: http://192.168.10.12:9000
+Access key: (set in MinIO console)
+Bucket: 6phene-personal / 6phene-company</div></div></div>
+</div>
+</div>
+ 
+<div class="sec">
+<div class="sh"><span class="sh-text">pfsense firewall — home network</span></div>
+<div class="steps">
+  <div class="step"><div class="step-num c5">1</div><div class="step-body"><div class="step-title">Initial pfSense setup</div><div class="step-detail">Connect Protectli WAN port to modem. Connect LAN port to CRS317 switch. Access pfSense web UI at 192.168.1.1 on first boot. Run setup wizard. Set LAN IP to 192.168.10.1.</div></div></div>
+  <div class="step"><div class="step-num c5">2</div><div class="step-body"><div class="step-title">Create VLANs</div><div class="step-detail">In pfSense: Interfaces → Assignments → VLANs. Create VLAN 10 (servers), 20 (desktop), 30 (IoT), 40 (grow), 50 (cameras), 60 (guest). Assign each a pfSense interface with its own subnet.</div><div class="code">VLAN 10: 192.168.10.0/24  (servers)
+VLAN 20: 192.168.20.0/24  (desktop)
+VLAN 30: 192.168.30.0/24  (IoT)
+VLAN 40: 192.168.40.0/24  (grow)
+VLAN 50: 192.168.50.0/24  (cameras)
+VLAN 60: 192.168.60.0/24  (guest)</div></div></div>
+  <div class="step"><div class="step-num c5">3</div><div class="step-body"><div class="step-title">Firewall rules (critical for security)</div><div class="step-detail">Block inter-VLAN traffic by default. Add specific allow rules only where needed. Cameras must only reach Frigate VM. IoT must only reach HA VM.</div><div class="code">VLAN 50 (cameras) rules:
+  ALLOW: dst 192.168.10.X port 1935,8554 (Frigate RTSP)
+  BLOCK: all other traffic
+ 
+VLAN 30 (IoT) rules:
+  ALLOW: dst 192.168.10.X port 8123 (HA)
+  BLOCK: all other traffic
+ 
+VLAN 60 (guest):
+  ALLOW: dst WAN (internet only)
+  BLOCK: all RFC1918 (no LAN access)</div></div></div>
+  <div class="step"><div class="step-num c5">4</div><div class="step-body"><div class="step-title">Configure Pi-hole as DHCP DNS</div><div class="step-detail">In pfSense DHCP server settings for each VLAN, set DNS server to PC 1 Pi-hole IP (192.168.10.X). All devices automatically use Pi-hole for DNS without any per-device configuration.</div></div></div>
+</div>
+</div>
+ 
+<div class="sec">
+<div class="sh"><span class="sh-text">tailscale — secure remote access</span></div>
+<div class="steps">
+  <div class="step"><div class="step-num c2">1</div><div class="step-body"><div class="step-title">Install Tailscale on all machines</div><div class="step-detail">Install on PC 1, PC 2 dev VM, PC 3, and NAS. Each machine gets a Tailscale IP in the 100.x.x.x range. They can communicate securely from anywhere without port forwarding.</div><div class="code"># Ubuntu/Debian (PC 1, PC 2 VMs, NAS)
+curl -fsSL https://tailscale.com/install.sh | sh
+sudo tailscale up
+ 
+# Windows (PC 3)
+# Download from tailscale.com/download</div></div></div>
+  <div class="step"><div class="step-num c2">2</div><div class="step-body"><div class="step-title">Set PC 2 dev VM as subnet router</div><div class="step-detail">This lets you access ALL home LAN devices (192.168.10.0/24) from PC 3 when you're away, not just Tailscale-enrolled machines. One command.</div><div class="code">sudo tailscale up --advertise-routes=192.168.10.0/24
+# Approve in Tailscale admin console</div></div></div>
+  <div class="step"><div class="step-num c2">3</div><div class="step-body"><div class="step-title">Configure SSH from PC 3 to PC 2</div><div class="step-detail">On PC 3 (WSL2 Ubuntu): generate SSH key pair. Copy public key to PC 2 dev VM. Add VS Code Remote SSH config for seamless development access.</div><div class="code"># WSL2 on PC 3
+ssh-keygen -t ed25519 -C "pc3@6phene"
+ssh-copy-id user@100.x.x.x  # PC 2 Tailscale IP
+ 
+# VS Code: Remote Explorer → Add New SSH Host
+# Host: 100.x.x.x  User: youruser  Key: ~/.ssh/id_ed25519</div></div></div>
+</div>
+</div>
+ 
+<div class="sec">
+<div class="sh"><span class="sh-text">gitea + woodpecker ci — pc 2</span></div>
+<div class="steps">
+  <div class="step"><div class="step-num c2">1</div><div class="step-body"><div class="step-title">Install Gitea in LXC</div><div class="step-detail">In Proxmox: create Ubuntu 22.04 LXC (2 vCPU, 4 GB RAM, 100 GB disk). Install Gitea binary. Configure to run as systemd service. Set up admin user.</div><div class="code">wget https://dl.gitea.com/gitea/latest/gitea-linux-amd64
+chmod +x gitea-linux-amd64
+./gitea web --config /etc/gitea/app.ini
+# Access: http://192.168.10.11:3000</div></div></div>
+  <div class="step"><div class="step-num c2">2</div><div class="step-body"><div class="step-title">Install Woodpecker CI</div><div class="step-detail">Install Woodpecker Server + Agent in a second LXC. Connect to Gitea via OAuth. Agent runs Docker containers for each pipeline job.</div><div class="code"># docker-compose.yml for Woodpecker
+WOODPECKER_GITEA=true
+WOODPECKER_GITEA_URL=http://192.168.10.11:3000
+WOODPECKER_GITEA_CLIENT=your-oauth-client-id
+WOODPECKER_GITEA_SECRET=your-oauth-secret</div></div></div>
+  <div class="step"><div class="step-num c2">3</div><div class="step-body"><div class="step-title">Create first CI pipeline</div><div class="step-detail">Add a .woodpecker.yml file to any Gitea repo. Push code → Gitea webhook fires → Woodpecker builds → deploys to company server via Tailscale VPN automatically.</div><div class="code">steps:
+  build:
+    image: node:18
+    commands:
+      - npm install
+      - npm run build
+  deploy:
+    image: appleboy/drone-ssh
+    settings:
+      host: company-server-tailscale-ip
+      command: cd /app && git pull && pm2 restart all</div></div></div>
+</div>
+</div>
+ 
+<div class="sec">
+<div class="sh"><span class="sh-text">frigate nvr setup — vm 6</span></div>
+<div class="steps">
+  <div class="step"><div class="step-num c3">1</div><div class="step-body"><div class="step-title">Install Frigate in VM 6</div><div class="step-detail">VM 6 has RTX 4070 #2 passed through and Coral TPU via USB. Install Docker, deploy Frigate container with GPU + TPU environment variables.</div><div class="code">docker run -d \
+  --name frigate \
+  --privileged \
+  --shm-size=512m \
+  -e FRIGATE_RTSP_PASSWORD="yourpass" \
+  --device /dev/apex_0 \  # Coral TPU
+  -v /dev/dri:/dev/dri \  # GPU decode
+  -v /config:/config \
+  -v /nvr-footage:/media/frigate \
+  -p 5000:5000 \
+  ghcr.io/blakeblackshear/frigate:stable</div></div></div>
+  <div class="step"><div class="step-num c3">2</div><div class="step-body"><div class="step-title">Configure cameras in frigate config</div><div class="step-detail">Add each camera's RTSP URL to frigate config.yml. Enable Coral TPU as detector. Enable NVDEC for GPU stream decoding. Set recording and snapshot retention.</div><div class="code">detectors:
+  coral:
+    type: edgetpu
+    device: usb
+ 
+cameras:
+  front_door:
+    ffmpeg:
+      hwaccel_args: preset-nvidia-h264
+      inputs:
+        - path: rtsp://192.168.50.10:554/stream1
+    detect: {width: 3840, height: 2160, fps: 5}
+    record:
+      enabled: true
+      retain: {days: 90, mode: motion}</div></div></div>
+  <div class="step"><div class="step-num c3">3</div><div class="step-body"><div class="step-title">Connect Frigate to Home Assistant</div><div class="step-detail">Install Frigate integration in HA. Configure MQTT broker (Mosquitto add-on in HA). Frigate sends detection events via MQTT → HA triggers automations → push notifications with camera snapshot.</div><div class="code"># In HA: Settings → Integrations → Add → Frigate
+# Frigate URL: http://192.168.10.X:5000
+# Configure notification automation:
+trigger:
+  platform: mqtt
+  topic: frigate/events
+action:
+  service: notify.mobile_app
+  data:
+    message: "Person detected: {{ trigger.payload_json.camera }}"
+    data:
+      image: "/api/frigate/notifications/{{trigger.payload_json.id}}/thumbnail.jpg"</div></div></div>
+</div>
+</div>
+ 
+<div class="sec">
+<div class="sh"><span class="sh-text">home assistant — main (vm 2) + grow (vm 5)</span></div>
+<div class="steps">
+  <div class="step"><div class="step-num c1">1</div><div class="step-body"><div class="step-title">Install Home Assistant OS in VM</div><div class="step-detail">Download HA OS .qcow2 image. Import into Proxmox as VM disk. Create VM, attach disk, pass through Zigbee/Z-Wave USB. Boot. Access at hassio.local:8123 after first boot.</div><div class="code"># Import HA OS image to Proxmox
+qm importdisk 102 haos_ova-12.x.qcow2 vm-storage
+# In Proxmox UI: attach as SATA0, set as boot disk
+# Pass through USB Zigbee controller:
+# Hardware → Add → USB Device → select Zigbee dongle</div></div></div>
+  <div class="step"><div class="step-num c1">2</div><div class="step-body"><div class="step-title">Install key integrations</div><div class="step-detail">After HA setup: install HACS (community store). Add integrations for Zigbee2MQTT, Z-Wave JS, Frigate, Alarmo, Vaultwarden notify, and all smart home devices.</div><div class="code">Essential add-ons:
+  - Mosquitto broker (MQTT for Frigate + Z-Wave)
+  - Zigbee2MQTT (all Zigbee devices)
+  - Z-Wave JS UI (all Z-Wave devices)
+  - Node-RED (complex automations)
+  - InfluxDB (long-term logging)
+  - Grafana (dashboards)</div></div></div>
+  <div class="step"><div class="step-num c1">3</div><div class="step-body"><div class="step-title">Grow VM: identical setup, different devices</div><div class="step-detail">VM 5 is a second HA installation. Same process but with the grow Zigbee USB stick passed through. Only grow devices pair here. Configure VPD, DLI, CO2 automations. Install InfluxDB + Grafana for grow analytics.</div><div class="code">Grow HA automations:
+  - CO2 dosing: if co2 < 1200ppm → open solenoid
+  - VPD alert: if vpd > 1.5 kPa → turn on humidifier
+  - DLI tracker: accumulate PPFD × time → notify at target
+  - Night mode: dim to 0% at lights-off time
+  - Emergency: if temp > 32°C → turn off lights + alert</div></div></div>
+</div>
+</div>
+</div>
+ 
+<!-- ═══════════════ MAINTENANCE ═══════════════ -->
+<div class="pg" id="p-maint">
+<div class="page-hero">
+  <div class="page-num">09 / OPERATIONS</div>
+  <div class="page-title" style="color:var(--c7);">Maintenance Schedule</div>
+  <div class="page-sub">keep everything running · update cadence · health checks · backup verification · hardware care</div>
+</div>
+ 
+<div class="sec">
+<div class="sh"><span class="sh-text">daily — automated</span></div>
+<div class="maint-grid">
+  <div class="mc"><div class="mc-freq" style="color:var(--c1);">Daily · automated</div><div class="mc-title">Backups</div>
+    <div class="mc-item">Proxmox Backup Server runs 02:00 — all VMs</div>
+    <div class="mc-item">TrueNAS cloud sync to B2 at 03:00</div>
+    <div class="mc-item">rclone COS backup on PC 1 VM 3 + PC 2 VM 2</div>
+    <div class="mc-item">Gitea repo backup to NAS at 04:00</div>
+  </div>
+  <div class="mc"><div class="mc-freq" style="color:var(--c1);">Daily · automated</div><div class="mc-title">Health checks</div>
+    <div class="mc-item">ZFS scrub on NAS (weekly auto-schedule)</div>
+    <div class="mc-item">Proxmox disk health via smartd</div>
+    <div class="mc-item">UPS battery status alert via SNMP</div>
+    <div class="mc-item">Pi-hole query log review (HA dashboard)</div>
+  </div>
+  <div class="mc"><div class="mc-freq" style="color:var(--c1);">Daily · automated</div><div class="mc-title">Monitoring</div>
+    <div class="mc-item">Grafana dashboard review (5 min morning)</div>
+    <div class="mc-item">Grow sensor alerts via HA push notifications</div>
+    <div class="mc-item">Frigate detection log — any anomalies</div>
+    <div class="mc-item">Woodpecker CI build status check</div>
+  </div>
+</div>
+</div>
+ 
+<div class="sec">
+<div class="sh"><span class="sh-text">weekly</span></div>
+<div class="maint-grid">
+  <div class="mc"><div class="mc-freq" style="color:var(--c5);">Weekly</div><div class="mc-title">Updates</div>
+    <div class="mc-item">Proxmox host apt update (Sunday morning)</div>
+    <div class="mc-item">VM OS updates inside each VM</div>
+    <div class="mc-item">TrueNAS SCALE update check</div>
+    <div class="mc-item">HA core + integrations update check</div>
+    <div class="mc-item">Frigate container pull latest stable</div>
+  </div>
+  <div class="mc"><div class="mc-freq" style="color:var(--c5);">Weekly</div><div class="mc-title">Backup verification</div>
+    <div class="mc-item">Test restore one VM from PBS backup</div>
+    <div class="mc-item">Verify B2 sync completed successfully</div>
+    <div class="mc-item">Check ZFS pool status — no degraded drives</div>
+    <div class="mc-item">Review Vaultwarden — ensure accessible</div>
+  </div>
+  <div class="mc"><div class="mc-freq" style="color:var(--c5);">Weekly</div><div class="mc-title">Security review</div>
+    <div class="mc-item">Frigate event log — unexpected detections</div>
+    <div class="mc-item">pfSense firewall log review</div>
+    <div class="mc-item">Check Tailscale connected devices</div>
+    <div class="mc-item">Review Nginx Proxy Manager access logs</div>
+  </div>
+</div>
+</div>
+ 
+<div class="sec">
+<div class="sh"><span class="sh-text">monthly</span></div>
+<div class="maint-grid">
+  <div class="mc"><div class="mc-freq" style="color:var(--c3);">Monthly</div><div class="mc-title">Hardware</div>
+    <div class="mc-item">Dust filters on all cases (compressed air)</div>
+    <div class="mc-item">Check HDD temps via smartmontools</div>
+    <div class="mc-item">UPS battery test (APC smart test)</div>
+    <div class="mc-item">Camera lens clean (soft microfiber cloth)</div>
+    <div class="mc-item">Check ZFS scrub results in TrueNAS</div>
+  </div>
+  <div class="mc"><div class="mc-freq" style="color:var(--c3);">Monthly</div><div class="mc-title">Storage review</div>
+    <div class="mc-item">NVR footage retention — trim old clips</div>
+    <div class="mc-item">NAS pool free space check (&gt;20% free)</div>
+    <div class="mc-item">Plex library scan + metadata refresh</div>
+    <div class="mc-item">VM disk usage — expand if needed</div>
+  </div>
+  <div class="mc"><div class="mc-freq" style="color:var(--c3);">Monthly</div><div class="mc-title">Grow system</div>
+    <div class="mc-item">Calibrate CO2 sensor (fresh air baseline)</div>
+    <div class="mc-item">Check PPFD sensor lens — clean if dusty</div>
+    <div class="mc-item">Review Grafana grow logs vs previous cycle</div>
+    <div class="mc-item">Check irrigation lines — no blockages</div>
+  </div>
+</div>
+</div>
+ 
+<div class="sec">
+<div class="sh"><span class="sh-text">quarterly / as needed</span></div>
+<div class="maint-grid">
+  <div class="mc"><div class="mc-freq" style="color:var(--c2);">Quarterly</div><div class="mc-title">Deep maintenance</div>
+    <div class="mc-item">Full system backup test restore</div>
+    <div class="mc-item">SSL cert renewal check (Nginx NPM auto)</div>
+    <div class="mc-item">Tailscale ACL rules review</div>
+    <div class="mc-item">pfSense ruleset audit</div>
+    <div class="mc-item">Replace UPS battery every 3–4 years</div>
+  </div>
+  <div class="mc"><div class="mc-freq" style="color:var(--c2);">Quarterly</div><div class="mc-title">Performance tuning</div>
+    <div class="mc-item">ZFS ARC hit rate — adjust size if needed</div>
+    <div class="mc-item">VM balloon memory — review allocations</div>
+    <div class="mc-item">Frigate detection accuracy — retune zones</div>
+    <div class="mc-item">Pi-hole blocklist updates</div>
+  </div>
+  <div class="mc"><div class="mc-freq" style="color:var(--c2);">As needed</div><div class="mc-title">Grow per-cycle</div>
+    <div class="mc-item">Reset grow HA automations for new genetics</div>
+    <div class="mc-item">Update VPD + DLI targets per strain</div>
+    <div class="mc-item">Export cycle data from InfluxDB to archive</div>
+    <div class="mc-item">Timelapse export from grow camera footage</div>
+  </div>
+</div>
+</div>
+ 
+<div class="sec">
+<div class="sh"><span class="sh-text">critical commands reference</span></div>
+<div class="note m">Keep this section bookmarked — these are the commands you'll use most often for diagnostics and recovery.</div>
+<div class="code"># ZFS health check (run on Proxmox hosts + NAS)
+zpool status -v
+zfs list -t all
+ 
+# Check all HDD SMART status
+smartctl -a /dev/sda
+ 
+# Proxmox VM start/stop/status
+qm start 101   # start VM 101
+qm stop 101    # graceful stop
+qm status 101  # check status
+ 
+# Frigate container restart
+docker restart frigate
+ 
+# Check GPU passthrough is working
+nvidia-smi  # inside Plex VM and Frigate VM
+ 
+# Tailscale status
+tailscale status
+tailscale ping 100.x.x.x
+ 
+# Check Proxmox backup job status
+proxmox-backup-client status
+ 
+# TrueNAS scrub start
+zpool scrub data
+ 
+# UPS battery status via SNMP (from Proxmox)
+snmpwalk -v 2c -c public 192.168.10.X</div>
+</div>
+</div>
+ 
+<!-- ═══════════════ SUMMARY ═══════════════ -->
+<div class="pg" id="p-summary">
+<div class="page-hero">
+  <div class="page-num">10 / OVERVIEW</div>
+  <div class="page-title" style="color:var(--c5);">Full Summary</div>
+  <div class="page-sub">complete cost breakdown · all builds · savings · phase 1 vs phase 2 · Toronto, Ontario, CAD</div>
+</div>
+ 
+<div class="sec">
+<div class="sh"><span class="sh-text">cost by system</span></div>
+<div class="sumg">
+  <div class="sumc"><div class="suml">PC 1 homelab</div><div class="sumv">$3,852</div><div class="sums">7 VMs · dual 4070 · 25G · 32TB HDD</div></div>
+  <div class="sumc"><div class="suml">PC 2 dev server</div><div class="sumv">$527</div><div class="sums">6 parts reused · 8 VMs+LXCs</div></div>
+  <div class="sumc"><div class="suml">PC 3 phase 1</div><div class="sumv">$1,860</div><div class="sums">ITX + 4070 temp · immediate</div></div>
+  <div class="sumc"><div class="suml">PC 3 phase 2</div><div class="sumv">$4,055</div><div class="sums">RTX 5090 + ROG full ATX</div></div>
+  <div class="sumc"><div class="suml">PC 3 peripherals</div><div class="sumv">$3,270</div><div class="sums">Dual 4K displays + all gear</div></div>
+  <div class="sumc"><div class="suml">NAS server</div><div class="sumv">$4,752</div><div class="sums">80TB usable · ECC · RAIDZ2</div></div>
+  <div class="sumc"><div class="suml">100G network</div><div class="sumv">$1,840</div><div class="sums">CRS317 · pfSense · VLANs · AP</div></div>
+  <div class="sumc"><div class="suml">UPS + power</div><div class="sumv">$1,350</div><div class="sums">Server + desktop protection</div></div>
+  <div class="sumc"><div class="suml">Security system</div><div class="sumv">$1,555</div><div class="sums">8 cameras + alarm + sensors</div></div>
+  <div class="sumc"><div class="suml">Grow automation</div><div class="sumv">$1,065</div><div class="sums">Full sensor + control stack</div></div>
+  <div class="sumc"><div class="suml">Build tools + acc.</div><div class="sumv">$343</div><div class="sums">Tools · labels · KVM · misc</div></div>
+</div>
+ 
+<div class="grand">
+  <div><div class="gl">Phase 1 total — everything operational from day one</div><div class="gsub">PC1+PC2+PC3ph1+NAS+network+UPS+security+grow+tools+peripherals</div></div>
+  <div class="gv">~$20,549</div>
+</div>
+<div class="grand" style="margin-top:8px;">
+  <div><div class="gl">Phase 2 — PC 3 RTX 5090 + ROG Maximus upgrade</div><div class="gsub">When RTX 5090 stock normalises · no urgency</div></div>
+  <div class="gv">~$4,055</div>
+</div>
+<div class="grand accent" style="margin-top:8px;">
+  <div><div class="gl" style="color:var(--c1);">All-in — both phases complete (before Ontario HST)</div><div class="gsub" style="color:rgba(0,229,160,.5);">+13% HST ≈ $3,200 · all-in ~$27,800 CAD</div></div>
+  <div class="gv">~$24,604</div>
+</div>
+</div>
+ 
+<div class="sec">
+<div class="sh"><span class="sh-text">savings from reused parts</span></div>
+<div class="tw"><table>
+<thead><tr><th>Part</th><th>Goes to</th><th class="r">Saved</th></tr></thead>
+<tbody>
+<tr><td><span class="pn">i9-14900K</span><span class="pno">Better than original 5900X spec · 32 threads</span></td><td><span class="pno">PC 2 CPU</span></td><td class="pr o">~$280</td></tr>
+<tr><td><span class="pn">ASUS ITX Z790</span><span class="pno">Used on PC 2 permanently + PC 3 phase 1 temp</span></td><td><span class="pno">PC 2 + PC 3</span></td><td class="pr o">~$480</td></tr>
+<tr><td><span class="pn">RTX 4070 × 2</span><span class="pno">Both GPUs into PC 1 dual passthrough — $0 GPU cost</span></td><td><span class="pno">PC 1 VMs 1+6</span></td><td class="pr o">~$900</td></tr>
+<tr><td><span class="pn">Seasonic 1600W Platinum</span><span class="pno">Perfect for RTX 5090 · $430 PSU cost eliminated</span></td><td><span class="pno">PC 3</span></td><td class="pr o">~$430</td></tr>
+<tr><td><span class="pn">2× NVMe 2 TB</span><span class="pno">VM storage on PC 2 + OS drive on PC 3</span></td><td><span class="pno">PC 2 + PC 3</span></td><td class="pr o">~$460</td></tr>
+<tr><td><span class="pn">Existing HDD + cooler + case</span><span class="pno">All go to PC 2</span></td><td><span class="pno">PC 2</span></td><td class="pr o">~$360</td></tr>
+</tbody></table></div>
+<div class="sav">
+  <div><div class="sav-l">Total saved — all reused parts vs buying new</div><div style="font-size:10px;color:rgba(74,222,128,.6);margin-top:2px;font-family:var(--mono);">Every owned part placed in its optimal role</div></div>
+  <div class="sav-v">~$2,910 saved</div>
+</div>
+</div>
+ 
+<div class="sec">
+<div class="sh"><span class="sh-text">complete vm inventory — 15 total</span></div>
+<div class="vg">
+  <div class="vc hl1"><span class="vb" style="background:var(--c1d);color:var(--c1);">PC1·VM1</span><div class="vt">Plex + QBit</div><div class="vd">4c · 16GB · 300GB + 20TB<br>RTX 4070 #1 passthru</div></div>
+  <div class="vc"><span class="vb" style="background:var(--c1d);color:var(--c1);">PC1·VM2</span><div class="vt">Home Assistant</div><div class="vd">2c · 8GB · 128GB NVMe</div></div>
+  <div class="vc"><span class="vb" style="background:var(--c1d);color:var(--c1);">PC1·VM3</span><div class="vt">COS Backup</div><div class="vd">2c · 8GB · 64GB NVMe</div></div>
+  <div class="vc"><span class="vb" style="background:var(--c1d);color:var(--c1);">PC1·VM4</span><div class="vt">Pi-hole DNS</div><div class="vd">2c · 2GB · 32GB NVMe</div></div>
+  <div class="vc hl5"><span class="vb" style="background:var(--c6d);color:var(--c6);">PC1·VM5</span><div class="vt">Grow Automation</div><div class="vd">2c · 8GB · 128GB NVMe<br>USB Zigbee passthru</div></div>
+  <div class="vc hl3"><span class="vb" style="background:var(--c3d);color:var(--c3);">PC1·VM6</span><div class="vt">Frigate NVR</div><div class="vd">4c · 32GB · 500GB + 12TB<br>RTX 4070 #2 + Coral TPU</div></div>
+  <div class="vc hl6"><span class="vb" style="background:var(--c5d);color:var(--c5);">PC1·VM7</span><div class="vt">Alarm Panel</div><div class="vd">2c · 6GB · 64GB NVMe<br>Konnected + Alarmo</div></div>
+  <div class="vc hl2"><span class="vb" style="background:var(--c2d);color:var(--c2);">PC2·VM1</span><div class="vt">Dev Sandbox</div><div class="vd">6c · 24GB · 200GB NVMe</div></div>
+  <div class="vc hl2"><span class="vb" style="background:var(--c2d);color:var(--c2);">PC2·VM2</span><div class="vt">COS Backup</div><div class="vd">2c · 8GB · 64GB + HDD</div></div>
+  <div class="vc hl2"><span class="vb" style="background:var(--c2d);color:var(--c2);">PC2·VM3</span><div class="vt">Info Storage</div><div class="vd">2c · 12GB · 300GB NVMe</div></div>
+  <div class="vc"><span class="vb" style="background:var(--bg5);color:var(--text2);">PC2·LXC</span><div class="vt">Pi-hole</div><div class="vd">1c · 512MB · 8GB</div></div>
+  <div class="vc"><span class="vb" style="background:var(--bg5);color:var(--text2);">PC2·LXC</span><div class="vt">Gitea</div><div class="vd">2c · 4GB · 100GB</div></div>
+  <div class="vc"><span class="vb" style="background:var(--bg5);color:var(--text2);">PC2·LXC</span><div class="vt">Woodpecker CI</div><div class="vd">2c · 4GB · 64GB</div></div>
+  <div class="vc"><span class="vb" style="background:var(--bg5);color:var(--text2);">PC2·LXC</span><div class="vt">Vaultwarden</div><div class="vd">1c · 1GB · 8GB</div></div>
+  <div class="vc"><span class="vb" style="background:var(--bg5);color:var(--text2);">PC2·LXC</span><div class="vt">Nginx Proxy Mgr</div><div class="vd">1c · 1GB · 8GB</div></div>
+</div>
+</div>
+ 
+<div class="sec">
+<div class="sh"><span class="sh-text">order sequence — when to buy what</span></div>
+<div class="steps">
+  <div class="step"><div class="step-num c3">NOW</div><div class="step-body"><div class="step-title">PC 3 Phase 1 parts</div><div class="step-detail">i9-14900KS · 64 GB DDR5-6400 · WD Black SN850X 4 TB · NZXT Kraken 360 · Windows 11 Pro. You're working on SolidWorks within a week.</div></div></div>
+  <div class="step"><div class="step-num c2">WEEK 2</div><div class="step-body"><div class="step-title">PC 2 parts (3 items)</div><div class="step-detail">G.Skill 64 GB DDR5-6000 · Samsung 990 Pro 512 GB · Seasonic Focus GX 850W. Quick build, dev pipeline live within days.</div></div></div>
+  <div class="step"><div class="step-num c1">WEEK 3-4</div><div class="step-body"><div class="step-title">PC 1 + NAS + networking + UPS</div><div class="step-detail">One large order from Canada Computers + Memory Express. Build PC 1 and NAS simultaneously. Set up pfSense and switch before powering on servers.</div></div></div>
+  <div class="step"><div class="step-num c6">WEEK 5-6</div><div class="step-body"><div class="step-title">Security cameras + grow hardware</div><div class="step-detail">Run camera cables first before installing cameras. Mount PoE switch. Wire grow room. All sensors and smart plugs after VMs are running.</div></div></div>
+  <div class="step"><div class="step-num c5">WHEN AVAILABLE</div><div class="step-body"><div class="step-title">PC 3 Phase 2 — RTX 5090</div><div class="step-detail">Set stock alerts at Canada Computers, Memory Express, BestBuy CA. When it arrives: order ROG Maximus Z790 Hero + 2× 32 GB DDR5-6400 + O11 EVO XL at the same time. Move RTX 4070 from PC 3 to PC 1 that same day.</div></div></div>
+</div>
+</div>
+ 
+<div class="note m">Cooler confirmation still outstanding — let us know the make and model of your existing CPU cooler on the i9-14900K to confirm LGA1700 bracket compatibility before placing PC 2 order.</div>
+ 
+<footer style="margin-top:3rem;padding-top:1rem;border-top:1px solid var(--border);font-family:var(--mono);font-size:9px;color:var(--text3);">
+6Phene Inc. · Complete Home Infrastructure Master Reference · Toronto, Ontario · All prices CAD · April 2026<br>
+4 machines · 15 VMs/LXCs · 7 VLANs · 8 cameras · 100G-ready · 80 TB NAS · grow automation · total investment ~$24,600 CAD both phases
+</footer>
+</div>
+ 
+</main>
+</div>
+ 
+<script>
+function show(id,btn,cls){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>{
+    n.classList.remove('active','n1','n2','n3','n4','n5','n6','n7','n8');
+  });
+  document.getElementById('p-'+id).classList.add('active');
+  btn.classList.add('active');
+  if(cls) btn.classList.add(cls);
+}
+</script>
+</body>
+</html>

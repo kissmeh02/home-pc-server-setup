@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Merge site
+        run: python scripts/merge_site.py
+
+      - name: Verify HTML output
+        run: |
+          test -f site/index.html
+          head -n 5 site/index.html | grep -q "<!DOCTYPE html>"
+
+      - name: Run tests
+        run: python tests/test_merge_site.py
