@@ -2,6 +2,16 @@
 
 These apply to all work in this repository unless explicitly waived.
 
+## Minimal version (always on)
+
+- Split by responsibility; **~150–200 lines per file** — stop and split if larger.
+- **Separate** data access, business logic, and UI; no circular deps.
+- **camelCase** / **PascalCase** / **UPPER_SNAKE_CASE** / **kebab-case** files; verb–noun functions; `is`/`has` booleans.
+- **One job per function** (~20–30 lines); pure where possible; early returns; named constants.
+- **No silent errors**; validate inputs at boundaries; document exports.
+- **Tests** mirror `src/`; stub or real tests for new logic.
+- Refactor **without behavior change** when needed; call out smells.
+
 **Notion (living doc):** [Add your Notion link here](https://www.notion.so/) — keep the Notion page and this file in sync when process changes.
 
 ## Architecture
