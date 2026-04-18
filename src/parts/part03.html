@@ -89,7 +89,7 @@
 <rect x="500" y="220" width="140" height="54" rx="4" fill="#1e2022" stroke="rgba(255,107,71,0.35)" stroke-width="0.5"/>
 <text x="570" y="238" text-anchor="middle" fill="#ff6b47" font-size="10" font-family="JetBrains Mono,monospace" font-weight="700">PC 3 DESKTOP</text>
 <text x="570" y="251" text-anchor="middle" fill="#484542" font-size="9" font-family="JetBrains Mono,monospace">2.5G switch</text>
-<text x="570" y="263" text-anchor="middle" fill="#484542" font-size="9" font-family="JetBrains Mono,monospace">Win 11 · RTX 5090</text>
+<text x="570" y="263" text-anchor="middle" fill="#484542" font-size="9" font-family="JetBrains Mono,monospace">Win 11 · 2× RTX 5090</text>
 <line x1="570" y1="220" x2="450" y2="168" stroke="rgba(255,107,71,0.5)" stroke-width="1.5" marker-end="url(#arr)" fill="none"/>
 <text x="520" y="188" fill="#484542" font-size="8" font-family="JetBrains Mono,monospace" text-anchor="middle">2.5G</text>
  
@@ -257,12 +257,12 @@
 <div class="sec">
 <div class="sh"><span class="sh-text">recommended build + setup order</span></div>
 <div class="steps">
-  <div class="step"><div class="step-num c3">FIRST</div><div class="step-body"><div class="step-title">Build PC 3 Phase 1</div><div class="step-detail">You need a working machine immediately for SolidWorks. Build PC 3 on the ITX Z790 + RTX 4070 first. Install Windows 11 Pro. Install SolidWorks with the Studio Driver. You're operational within a day.</div></div></div>
+  <div class="step"><div class="step-num c3">FIRST</div><div class="step-body"><div class="step-title">Build PC 3 Desktop</div><div class="step-detail">Build PC 3 on the Z890 Extreme with 2× RTX 5090. Install Windows 11 Pro. Install SolidWorks with the Studio Driver. Full power from day one — no phased upgrade needed.</div></div></div>
   <div class="step"><div class="step-num c2">SECOND</div><div class="step-body"><div class="step-title">Build + configure PC 2</div><div class="step-detail">Install Proxmox. Create VMs + LXCs. Launch Gitea, Woodpecker, Vaultwarden, Nginx Proxy Manager. This gets your dev pipeline running before PC 1 is set up.</div></div></div>
   <div class="step"><div class="step-num c1">THIRD</div><div class="step-body"><div class="step-title">Network infrastructure</div><div class="step-detail">Set up pfSense firewall. Configure CRS317 switch with VLANs. Connect everything. Verify connectivity between all devices before adding servers.</div></div></div>
   <div class="step"><div class="step-num c4">FOURTH</div><div class="step-body"><div class="step-title">Build NAS + PC 1 together</div><div class="step-detail">Build both simultaneously. Install TrueNAS on NAS first, configure ZFS pool. Then install Proxmox on PC 1, set up IOMMU, create VMs. This order means storage is ready when VMs need it.</div></div></div>
   <div class="step"><div class="step-num c5">FIFTH</div><div class="step-body"><div class="step-title">Deploy security + grow</div><div class="step-detail">Run camera cables, install PoE switch, configure Frigate. Set up Konnected. Wire grow room sensors and smart plugs. Pair all Zigbee devices.</div></div></div>
-  <div class="step"><div class="step-num c6">ONGOING</div><div class="step-body"><div class="step-title">Phase 2 when RTX 5090 available</div><div class="step-detail">Swap ITX Z790 for ROG Maximus on PC 3. Move RTX 4070 temp GPU to PC 1 (it stays there permanently). Install 5090. Top up RAM to 128 GB. Move to O11 EVO XL case.</div></div></div>
+  <div class="step"><div class="step-num c6">ONGOING</div><div class="step-body"><div class="step-title">Optimise + expand</div><div class="step-detail">Tune BIOS XMP profiles on Z890. Verify dual 5090 thermals under sustained load. Expand NAS storage as needed. Review Proxmox resource allocations quarterly.</div></div></div>
 </div>
 </div>
  
@@ -630,8 +630,7 @@ snmpwalk -v 2c -c public 192.168.10.X</div>
 <div class="sumg">
   <div class="sumc"><div class="suml">PC 1 homelab</div><div class="sumv">$3,852</div><div class="sums">7 VMs · dual 4070 · 25G · 32TB HDD</div></div>
   <div class="sumc"><div class="suml">PC 2 dev server</div><div class="sumv">$527</div><div class="sums">6 parts reused · 8 VMs+LXCs</div></div>
-  <div class="sumc"><div class="suml">PC 3 phase 1</div><div class="sumv">$1,860</div><div class="sums">ITX + 4070 temp · immediate</div></div>
-  <div class="sumc"><div class="suml">PC 3 phase 2</div><div class="sumv">$4,055</div><div class="sums">RTX 5090 + ROG full ATX</div></div>
+  <div class="sumc"><div class="suml">PC 3 desktop</div><div class="sumv">$9,095</div><div class="sums">Z890 · 2× 5090 · 128 GB DDR5</div></div>
   <div class="sumc"><div class="suml">PC 3 peripherals</div><div class="sumv">$3,270</div><div class="sums">Dual 4K displays + all gear</div></div>
   <div class="sumc"><div class="suml">NAS server</div><div class="sumv">$4,752</div><div class="sums">80TB usable · ECC · RAIDZ2</div></div>
   <div class="sumc"><div class="suml">100G network</div><div class="sumv">$1,840</div><div class="sums">CRS317 · pfSense · VLANs · AP</div></div>
@@ -641,17 +640,9 @@ snmpwalk -v 2c -c public 192.168.10.X</div>
   <div class="sumc"><div class="suml">Build tools + acc.</div><div class="sumv">$343</div><div class="sums">Tools · labels · KVM · misc</div></div>
 </div>
  
-<div class="grand">
-  <div><div class="gl">Phase 1 total — everything operational from day one</div><div class="gsub">PC1+PC2+PC3ph1+NAS+network+UPS+security+grow+tools+peripherals</div></div>
-  <div class="gv">~$20,549</div>
-</div>
-<div class="grand" style="margin-top:8px;">
-  <div><div class="gl">Phase 2 — PC 3 RTX 5090 + ROG Maximus upgrade</div><div class="gsub">When RTX 5090 stock normalises · no urgency</div></div>
-  <div class="gv">~$4,055</div>
-</div>
-<div class="grand accent" style="margin-top:8px;">
-  <div><div class="gl" style="color:var(--c1);">All-in — both phases complete (before Ontario HST)</div><div class="gsub" style="color:rgba(0,229,160,.5);">+13% HST ≈ $3,200 · all-in ~$27,800 CAD</div></div>
-  <div class="gv">~$24,604</div>
+<div class="grand accent">
+  <div><div class="gl" style="color:var(--c1);">All-in total (before Ontario HST)</div><div class="gsub" style="color:rgba(0,229,160,.5);">+13% HST ≈ $3,600 · all-in ~$31,250 CAD</div></div>
+  <div class="gv">~$27,649</div>
 </div>
 </div>
  
@@ -661,7 +652,7 @@ snmpwalk -v 2c -c public 192.168.10.X</div>
 <thead><tr><th>Part</th><th>Goes to</th><th class="r">Saved</th></tr></thead>
 <tbody>
 <tr><td><span class="pn">i9-14900K</span><span class="pno">Better than original 5900X spec · 32 threads</span></td><td><span class="pno">PC 2 CPU</span></td><td class="pr o">~$280</td></tr>
-<tr><td><span class="pn">ASUS ITX Z790</span><span class="pno">Used on PC 2 permanently + PC 3 phase 1 temp</span></td><td><span class="pno">PC 2 + PC 3</span></td><td class="pr o">~$480</td></tr>
+<tr><td><span class="pn">ASUS ITX Z790</span><span class="pno">Permanent home on PC 2 · no new board needed</span></td><td><span class="pno">PC 2</span></td><td class="pr o">~$480</td></tr>
 <tr><td><span class="pn">RTX 4070 × 2</span><span class="pno">Both GPUs into PC 1 dual passthrough — $0 GPU cost</span></td><td><span class="pno">PC 1 VMs 1+6</span></td><td class="pr o">~$900</td></tr>
 <tr><td><span class="pn">Seasonic 1600W Platinum</span><span class="pno">Perfect for RTX 5090 · $430 PSU cost eliminated</span></td><td><span class="pno">PC 3</span></td><td class="pr o">~$430</td></tr>
 <tr><td><span class="pn">2× NVMe 2 TB</span><span class="pno">VM storage on PC 2 + OS drive on PC 3</span></td><td><span class="pno">PC 2 + PC 3</span></td><td class="pr o">~$460</td></tr>
@@ -697,19 +688,20 @@ snmpwalk -v 2c -c public 192.168.10.X</div>
 <div class="sec">
 <div class="sh"><span class="sh-text">order sequence — when to buy what</span></div>
 <div class="steps">
-  <div class="step"><div class="step-num c3">NOW</div><div class="step-body"><div class="step-title">PC 3 Phase 1 parts</div><div class="step-detail">i9-14900KS · 64 GB DDR5-6400 · WD Black SN850X 4 TB · NZXT Kraken 360 · Windows 11 Pro. You're working on SolidWorks within a week.</div></div></div>
+  <div class="step"><div class="step-num c3">NOW</div><div class="step-body"><div class="step-title">PC 3 full build</div><div class="step-detail">Core Ultra 9 285K · Z890 Extreme · 128 GB DDR5-7600 · 2× RTX 5090 · NZXT Kraken 360 · O11 EVO XL · Windows 11 Pro. Full power desktop from day one.</div></div></div>
   <div class="step"><div class="step-num c2">WEEK 2</div><div class="step-body"><div class="step-title">PC 2 parts (3 items)</div><div class="step-detail">G.Skill 64 GB DDR5-6000 · Samsung 990 Pro 512 GB · Seasonic Focus GX 850W. Quick build, dev pipeline live within days.</div></div></div>
   <div class="step"><div class="step-num c1">WEEK 3-4</div><div class="step-body"><div class="step-title">PC 1 + NAS + networking + UPS</div><div class="step-detail">One large order from Canada Computers + Memory Express. Build PC 1 and NAS simultaneously. Set up pfSense and switch before powering on servers.</div></div></div>
   <div class="step"><div class="step-num c6">WEEK 5-6</div><div class="step-body"><div class="step-title">Security cameras + grow hardware</div><div class="step-detail">Run camera cables first before installing cameras. Mount PoE switch. Wire grow room. All sensors and smart plugs after VMs are running.</div></div></div>
-  <div class="step"><div class="step-num c5">WHEN AVAILABLE</div><div class="step-body"><div class="step-title">PC 3 Phase 2 — RTX 5090</div><div class="step-detail">Set stock alerts at Canada Computers, Memory Express, BestBuy CA. When it arrives: order ROG Maximus Z790 Hero + 2× 32 GB DDR5-6400 + O11 EVO XL at the same time. Move RTX 4070 from PC 3 to PC 1 that same day.</div></div></div>
+  <div class="step"><div class="step-num c5">WHEN 5090 IN STOCK</div><div class="step-body"><div class="step-title">Secure 2× RTX 5090</div><div class="step-detail">Set stock alerts at Canada Computers, Memory Express, BestBuy CA. PC 3 build waits for both 5090s — order all PC 3 parts once GPUs are secured. Move both RTX 4070s directly to PC 1.</div></div></div>
 </div>
 </div>
  
 <div class="note m">Cooler confirmation still outstanding — let us know the make and model of your existing CPU cooler on the i9-14900K to confirm LGA1700 bracket compatibility before placing PC 2 order.</div>
+<div class="note r">PSU cable check: verify your Seasonic 1600W Platinum has two native 16-pin 12V-2x6 connectors for the dual 5090s. If it only has 8-pin PCIe cables, order Seasonic's official 16-pin adapter cables before PC 3 build day.</div>
  
 <footer style="margin-top:3rem;padding-top:1rem;border-top:1px solid var(--border);font-family:var(--mono);font-size:9px;color:var(--text3);">
 6Phene Inc. · Complete Home Infrastructure Master Reference · Toronto, Ontario · All prices CAD · April 2026<br>
-4 machines · 15 VMs/LXCs · 7 VLANs · 8 cameras · 100G-ready · 80 TB NAS · grow automation · total investment ~$24,600 CAD both phases
+4 machines · 15 VMs/LXCs · 7 VLANs · 8 cameras · 100G-ready · 80 TB NAS · grow automation · 2× RTX 5090 desktop · total investment ~$27,650 CAD
 </footer>
 </div>
  
